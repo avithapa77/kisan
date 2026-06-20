@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kisan — Autonomous Farm Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<style>
+:root {
+  --green-700: #14532d;
+  --green-600: #1a7a56;
+  --green-500: #22a06b;
+  --green-400: #34c98a;
+  --green-100: #e3f5ed;
+  --green-50:  #f0faf5;
+  --amber-600: #b45309;
+  --amber-500: #d97706;
+  --amber-100: #fef3c7;
+  --red-500:   #dc2626;
+  --red-100:   #fee2e2;
+  --blue-600:  #1d4ed8;
+  --blue-500:  #2563eb;
+  --blue-100:  #dbeafe;
+  --purple-500:#7c3aed;
+  --purple-100:#ede9fe;
+  --soil:      #7c5c3a;
+  --sky:       #e8f4fd;
+  --bg:        #f5f7f5;
+  --surface:   #ffffff;
+  --border:    #e2e8e2;
+  --text:      #1a2e1a;
+  --text-2:    #4a5e4a;
+  --text-3:    #8a9e8a;
+  --font: 'Inter', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Layout ─────────────────────────────────────────────── */
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 52px 1fr;
+  min-height: 100vh;
+}
+
+/* ── Topbar ─────────────────────────────────────────────── */
+.topbar {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -.3px;
+}
+.logo-icon {
+  width: 28px; height: 28px; background: var(--green-600); border-radius: 7px;
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px;
+}
+.topbar-farm { font-size: 12.5px; color: var(--text-3); border-left: 1px solid var(--border); padding-left: 14px; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.alert-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--red-100); color: var(--red-500);
+  font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px;
+}
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--green-600); color: #fff;
+  font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface); border-right: 1px solid var(--border);
+  padding: 14px 0; display: flex; flex-direction: column; gap: 2px; overflow-y: auto;
+}
+.nav-group { font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text-3); padding: 12px 16px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 16px; font-size: 13.5px; color: var(--text-2);
+  cursor: pointer; border-left: 2px solid transparent; transition: all .12s; user-select: none;
+}
+.nav-item i { font-size: 17px; }
+.nav-item:hover { color: var(--text); background: var(--green-50); }
+.nav-item.active { color: var(--green-600); border-left-color: var(--green-500); background: var(--green-50); font-weight: 500; }
+
+/* ── Main ────────────────────────────────────────────────── */
+.main { padding: 24px 28px; overflow-y: auto; }
+.page { display: none; }
+.page.active { display: flex; flex-direction: column; gap: 18px; }
+
+/* ── Page header ─────────────────────────────────────────── */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; }
+.page-title { font-size: 19px; font-weight: 600; letter-spacing: -.3px; }
+.page-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; font-size: 13px; font-weight: 500;
+  border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all .12s;
+}
+.btn-primary { background: var(--green-600); color: #fff; }
+.btn-primary:hover { background: var(--green-500); }
+.btn-ghost { background: transparent; color: var(--text-2); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); }
+.btn-amber { background: var(--amber-500); color: #fff; }
+.btn-amber:hover { background: var(--amber-600); }
+.btn-blue { background: var(--blue-500); color: #fff; }
+.btn-blue:hover { background: var(--blue-600); }
+.btn-purple { background: var(--purple-500); color: #fff; }
+.btn-red { background: var(--red-500); color: #fff; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* ── Grids ─────────────────────────────────────────────────── */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── Metric card ─────────────────────────────────────────── */
+.metric {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow);
+}
+.metric-label { font-size: 11.5px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.metric-val { font-size: 26px; font-weight: 600; letter-spacing: -.5px; color: var(--text); }
+.metric-sub { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+.metric-up { color: var(--green-500); }
+.metric-down { color: var(--red-500); }
+
+/* ── Card ─────────────────────────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow);
+}
+.card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-title { font-size: 13.5px; font-weight: 600; color: var(--text); }
+
+/* ── Pills ────────────────────────────────────────────────── */
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 500; padding: 3px 8px; border-radius: 20px; }
+.pill-green  { background: var(--green-100); color: var(--green-600); }
+.pill-red    { background: var(--red-100);   color: var(--red-500); }
+.pill-amber  { background: var(--amber-100); color: var(--amber-500); }
+.pill-blue   { background: var(--blue-100);  color: var(--blue-500); }
+.pill-purple { background: var(--purple-100);color: var(--purple-500);}
+.pill-gray   { background: #f0f0f0; color: #555; }
+.dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--green-400); display: inline-block; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── Field map ────────────────────────────────────────────── */
+.field-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.fzone {
+  aspect-ratio: 1; border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; cursor: pointer;
+  transition: transform .1s, box-shadow .1s; position: relative;
+}
+.fzone:hover { transform: scale(1.06); box-shadow: var(--shadow-md); z-index: 2; }
+.fzone .crop-label { font-size: 8px; font-weight: 400; opacity: .75; margin-top: 1px; }
+.fz-h { background: #b7e4c7; color: #1a4d2e; }
+.fz-s { background: #fde68a; color: #78350f; }
+.fz-a { background: #fca5a5; color: #7f1d1d; }
+.fz-i { background: #bfdbfe; color: #1e3a8a; }
+.fz-e { background: #e5e7eb; color: #6b7280; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+/* ── Tooltip ─────────────────────────────────────────────── */
+.tooltip {
+  position: fixed; background: var(--text); color: #fff;
+  font-size: 12px; padding: 6px 10px; border-radius: 6px;
+  pointer-events: none; z-index: 1000; display: none; line-height: 1.5; max-width: 180px;
+}
+
+/* ── Weather ─────────────────────────────────────────────── */
+.weather-row { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
+.wday { background: var(--bg); border-radius: var(--radius-sm); padding: 8px 4px; text-align: center; }
+.wday-name { font-size: 10.5px; color: var(--text-3); font-weight: 500; }
+.wday-icon { font-size: 20px; margin: 4px 0; }
+.wday-temp { font-size: 13px; font-weight: 600; color: var(--text); }
+.wday-rain { font-size: 10px; color: var(--blue-500); }
+
+/* ── Alert rows ───────────────────────────────────────────── */
+.alert-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.alert-row:last-child { border-bottom: none; padding-bottom: 0; }
+.alert-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.alert-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.alert-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+/* ── Sensors redesign ─────────────────────────────────────── */
+.sensor-section-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--text-3); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.sensor-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Actionable sensor cards */
+.action-sensor-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.action-sensor-card.warn { border-color: var(--amber-500); background: #fffbf0; }
+.action-sensor-card.bad  { border-color: var(--red-500); background: #fff5f5; }
+.asensor-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.asensor-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.asensor-val { font-size: 24px; font-weight: 600; font-family: var(--mono); color: var(--text); }
+.asensor-label { font-size: 11.5px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+.asensor-status { font-size: 12px; font-weight: 500; margin-top: 2px; }
+.asensor-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Environmental (read-only) sensor cards — smaller, muted */
+.env-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.env-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.env-icon { font-size: 18px; color: var(--text-3); flex-shrink: 0; }
+.env-val { font-size: 17px; font-weight: 600; font-family: var(--mono); color: var(--text-2); }
+.env-label { font-size: 11px; color: var(--text-3); }
+.env-note { font-size: 10.5px; color: var(--text-3); font-style: italic; margin-top: 2px; }
+
+/* ── Hbar ─────────────────────────────────────────────────── */
+.hbar-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 12.5px; }
+.hbar-label { width: 72px; color: var(--text-2); flex-shrink: 0; }
+.hbar-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.hbar-fill { height: 100%; border-radius: 4px; }
+.hbar-val { width: 48px; text-align: right; font-weight: 500; color: var(--text); font-family: var(--mono); font-size: 12px; }
+
+/* ── Drone/robot rows ─────────────────────────────────────── */
+.drone-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.drone-row:last-child { border-bottom: none; }
+.drone-avatar { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.drone-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.drone-task { font-size: 12px; color: var(--text-3); }
+.bat-wrap { text-align: right; }
+.bat-label { font-size: 10.5px; color: var(--text-3); margin-bottom: 3px; }
+.bat-bar { width: 52px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.bat-fill { height: 100%; border-radius: 3px; }
+.prog-wrap { flex: 1; }
+.prog-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 5px 0; }
+.prog-fill { height: 100%; background: var(--green-500); border-radius: 3px; transition: width .4s; }
+.prog-meta { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-3); }
+.robot-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.robot-row:last-child { border-bottom: none; }
+.robot-avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+
+/* ── Tasks ────────────────────────────────────────────────── */
+.task-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.task-row:last-child { border-bottom: none; }
+.task-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .12s; }
+.task-check.done { background: var(--green-500); border-color: var(--green-500); color: #fff; }
+.task-check.active { background: var(--amber-500); border-color: var(--amber-500); color: #fff; }
+.task-text { flex: 1; font-size: 13px; color: var(--text); }
+.task-text.done-text { color: var(--text-3); text-decoration: line-through; }
+
+/* ── AI chat ──────────────────────────────────────────────── */
+.chat-messages { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px; }
+.chat-msg { display: flex; flex-direction: column; gap: 3px; }
+.chat-meta { font-size: 11px; color: var(--text-3); }
+.chat-bubble { background: var(--green-50); border: 1px solid var(--green-100); border-radius: 4px 12px 12px 12px; padding: 10px 13px; font-size: 13.5px; color: var(--text); line-height: 1.65; max-width: 88%; }
+.chat-bubble.user { background: var(--bg); border-color: var(--border); border-radius: 12px 4px 12px 12px; align-self: flex-end; }
+.chat-input-row { display: flex; gap: 8px; }
+.chat-input { flex: 1; padding: 9px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13.5px; font-family: var(--font); background: var(--surface); color: var(--text); outline: none; transition: border-color .12s; }
+.chat-input:focus { border-color: var(--green-500); }
+.quick-prompts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.quick-btn { font-size: 11.5px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 20px; background: transparent; color: var(--text-2); cursor: pointer; transition: all .12s; font-family: var(--font); }
+.quick-btn:hover { background: var(--green-50); border-color: var(--green-400); color: var(--green-600); }
+
+/* ── Dispatch modal overlay ───────────────────────────────── */
+.modal-bg {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  z-index: 500; align-items: center; justify-content: center;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: 12px; padding: 24px 26px;
+  width: 440px; max-width: 96vw; box-shadow: 0 16px 48px rgba(0,0,0,.18);
+}
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.modal-sub { font-size: 12.5px; color: var(--text-3); margin-bottom: 16px; }
+.modal-field { margin-bottom: 12px; }
+.modal-label { font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; display: block; }
+.modal-select, .modal-input {
+  width: 100%; padding: 8px 11px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 13px; font-family: var(--font);
+  color: var(--text); background: var(--surface); outline: none;
+}
+.modal-select:focus, .modal-input:focus { border-color: var(--green-500); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.modal-confirm-msg { display: none; background: var(--green-50); border: 1px solid var(--green-100); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--green-600); margin-top: 12px; }
+
+/* ── Crop planner ─────────────────────────────────────────── */
+.crop-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow);
+}
+.crop-recommendation {
+  border-left: 3px solid var(--green-500);
+  padding: 10px 14px; border-radius: 0 8px 8px 0;
+  background: var(--green-50); margin-bottom: 8px;
+}
+.crop-rec-name { font-size: 14px; font-weight: 600; color: var(--green-600); }
+.crop-rec-detail { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.crop-rec-reason { font-size: 11.5px; color: var(--text-3); margin-top: 4px; font-style: italic; }
+.planner-loading { text-align: center; padding: 30px; color: var(--text-3); font-size: 13px; }
+.planner-loading i { font-size: 28px; display: block; margin-bottom: 8px; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Spray scheduling card ────────────────────────────────── */
+.spray-schedule-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--border);
+}
+.spray-schedule-row:last-child { border-bottom: none; }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 820px) {
+  .shell { grid-template-columns: 1fr; grid-template-rows: 52px auto 1fr; }
+  .sidebar { grid-row: 2; flex-direction: row; flex-wrap: wrap; padding: 6px 10px; border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .nav-group { display: none; }
+  .nav-item { padding: 6px 10px; font-size: 12px; border-left: none; border-bottom: 2px solid transparent; }
+  .nav-item.active { border-bottom-color: var(--green-500); border-left-color: transparent; }
+  .main { padding: 16px; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .env-grid { grid-template-columns: repeat(2,1fr); }
+  .weather-row { grid-template-columns: repeat(4, 1fr); }
+  .field-grid { grid-template-columns: repeat(6, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ── DISPATCH MODAL ── -->
+<div class="modal-bg" id="dispatch-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Dispatch action</div>
+    <div class="modal-sub" id="modal-sub">Configure and confirm dispatch</div>
+    <div id="modal-body"></div>
+    <div class="modal-confirm-msg" id="modal-confirm"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-confirm-btn" onclick="confirmDispatch()">Dispatch</button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon"><i class="ti ti-plant-2"></i></div>
+      Kisan
+    </div>
+    <span class="topbar-farm">Field Station Alpha &middot; Kathmandu Valley</span>
+    <div class="topbar-right">
+      <span class="alert-chip"><i class="ti ti-alert-triangle"></i> 3 alerts</span>
+      <div class="avatar">RP</div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-group">Monitor</div>
+    <div class="nav-item active" onclick="nav('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+    <div class="nav-item" onclick="nav('field',this)"><i class="ti ti-map-2"></i> Field map</div>
+    <div class="nav-item" onclick="nav('sensors',this)"><i class="ti ti-device-analytics"></i> Sensors</div>
+    <div class="nav-group">Dispatch</div>
+    <div class="nav-item" onclick="nav('spray',this)"><i class="ti ti-spray"></i> Spray &amp; Seed</div>
+    <div class="nav-item" onclick="nav('drones',this)"><i class="ti ti-drone"></i> Drones</div>
+    <div class="nav-item" onclick="nav('robots',this)"><i class="ti ti-robot"></i> Robots</div>
+    <div class="nav-group">Field Actions</div>
+    <div class="nav-item" onclick="nav('irrigation',this)"><i class="ti ti-droplet-half-2"></i> Irrigation</div>
+    <div class="nav-item" onclick="nav('pest',this)"><i class="ti ti-bug"></i> Pest &amp; Disease</div>
+    <div class="nav-item" onclick="nav('harvest',this)"><i class="ti ti-basket"></i> Harvest Log</div>
+    <div class="nav-item" onclick="nav('equipment',this)"><i class="ti ti-tool"></i> Equipment</div>
+    <div class="nav-group">Intelligence</div>
+    <div class="nav-item" onclick="nav('planner',this)"><i class="ti ti-calendar-plus"></i> Crop Planner</div>
+    <div class="nav-item" onclick="nav('ai',this)"><i class="ti ti-brain"></i> AI Advisor</div>
+    <div class="nav-item" onclick="nav('tasks',this)"><i class="ti ti-checklist"></i> Tasks</div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div><div class="page-title">Good morning, Raj 👋</div><div class="page-sub">Saturday, 21 June · 3 alerts need your attention</div></div>
+        <button class="btn btn-primary" onclick="nav('ai',document.querySelectorAll('.nav-item')[9])"><i class="ti ti-brain"></i> Ask AI advisor</button>
+      </div>
+
+      <div class="grid-4">
+        <div class="metric"><div class="metric-label"><i class="ti ti-plant"></i> Crop health</div><div class="metric-val" style="color:var(--green-600)">87%</div><div class="metric-sub metric-up">↑ 3% from last week</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-droplet"></i> Avg soil moisture</div><div class="metric-val">62%</div><div class="metric-sub">Optimal: 55–70%</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-drone"></i> Drone</div><div class="metric-val" style="color:var(--green-600)">1</div><div class="metric-sub">UAV-1 · Multi-role · Flying</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-trending-up"></i> Est. yield</div><div class="metric-val">2.4t</div><div class="metric-sub">Harvest in ~18 days</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Field zones — NDVI</span>
+            <span class="pill pill-green"><span class="dot-live"></span> Live</span>
+          </div>
+          <div class="field-grid" id="dash-map"></div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#b7e4c7"></div>Healthy</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fde68a"></div>Stress</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fca5a5"></div>Alert</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#bfdbfe"></div>Irrigating</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="card-head"><span class="card-title">Active alerts</span><span class="pill pill-red">3 new</span></div>
+            <div class="alert-row">
+              <div class="alert-icon" style="background:var(--red-100)"><i class="ti ti-virus" style="color:var(--red-500)"></i></div>
+              <div style="flex:1"><div class="alert-title">Fungal blight detected</div><div class="alert-sub">Zones B3–B4 · UAV-1 dispatched</div></div>
+              <span class="pill pill-red">High</span>
+            </div>
+            <div class="alert-row">
+              <div class="alert-icon" style="background:var(--amber-100)"><i class="ti ti-leaf" style="color:var(--amber-500)"></i></div>
+              <div style="flex:1"><div class="alert-title">Nitrogen deficiency · Zone A4</div><div class="alert-sub">42 ppm detected · foliar feed scheduled 11:00</div></div>
+              <span class="pill pill-amber">Med</span>
+            </div>
+            <div class="alert-row">
+              <div class="alert-icon" style="background:var(--amber-100)"><i class="ti ti-droplet-off" style="color:var(--amber-500)"></i></div>
+              <div style="flex:1"><div class="alert-title">Drought stress · Zone C5</div><div class="alert-sub">Soil moisture 39% — below 45% threshold</div></div>
+              <button class="btn btn-blue btn-sm" onclick="openModal('irrigate','C5')">Irrigate now</button>
+            </div>
+            <div class="alert-row">
+              <div class="alert-icon" style="background:var(--green-100)"><i class="ti ti-calendar" style="color:var(--green-600)"></i></div>
+              <div style="flex:1"><div class="alert-title">Harvest window opening</div><div class="alert-sub">Tomatoes A1–A3 · ~18 days</div></div>
+              <span class="pill pill-green">Info</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><span class="card-title">7-day forecast</span></div>
+            <div class="weather-row">
+              <div class="wday"><div class="wday-name">Mon</div><div class="wday-icon">☀️</div><div class="wday-temp">26°</div></div>
+              <div class="wday"><div class="wday-name">Tue</div><div class="wday-icon">⛅</div><div class="wday-temp">24°</div></div>
+              <div class="wday"><div class="wday-name">Wed</div><div class="wday-icon">🌧️</div><div class="wday-temp">19°</div><div class="wday-rain">8mm</div></div>
+              <div class="wday"><div class="wday-name">Thu</div><div class="wday-icon">🌧️</div><div class="wday-temp">18°</div><div class="wday-rain">12mm</div></div>
+              <div class="wday"><div class="wday-name">Fri</div><div class="wday-icon">⛅</div><div class="wday-temp">22°</div></div>
+              <div class="wday"><div class="wday-name">Sat</div><div class="wday-icon">☀️</div><div class="wday-temp">27°</div></div>
+              <div class="wday"><div class="wday-name">Sun</div><div class="wday-icon">☀️</div><div class="wday-temp">28°</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FIELD MAP ── -->
+    <div class="page" id="page-field">
+      <div class="page-header">
+        <div><div class="page-title">Field map</div><div class="page-sub">24 zones · Last scanned 4 min ago · Hover a zone for details</div></div>
+        <span class="pill pill-green"><span class="dot-live"></span> NDVI live</span>
+      </div>
+      <div class="card">
+        <div class="field-grid" id="full-map" style="gap:6px"></div>
+        <div class="legend" style="margin-top:14px">
+          <div class="legend-item"><div class="legend-dot" style="background:#b7e4c7"></div>Healthy</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fde68a"></div>Drought stress</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fca5a5"></div>Disease alert</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#bfdbfe"></div>Irrigating now</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb"></div>Empty / unplanted</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SENSORS (redesigned) ── -->
+    <div class="page" id="page-sensors">
+      <div class="page-header">
+        <div><div class="page-title">Sensors</div><div class="page-sub">LoRaWAN field nodes · Updating every 15 min</div></div>
+        <span class="pill pill-green"><span class="dot-live"></span> All nodes online</span>
+      </div>
+
+      <!-- ACTIONABLE SENSORS -->
+      <div>
+        <div class="sensor-section-label"><i class="ti ti-bolt" style="color:var(--green-500)"></i> Actionable — you can change these</div>
+        <div class="grid-3">
+
+          <!-- Soil Moisture -->
+          <div class="action-sensor-card warn">
+            <div class="asensor-top">
+              <div>
+                <div class="asensor-icon" style="background:var(--blue-100)"><i class="ti ti-droplet" style="color:var(--blue-500)"></i></div>
+              </div>
+              <div style="text-align:right">
+                <div class="asensor-val">39%</div>
+                <div class="asensor-label">Soil moisture · C5</div>
+                <div class="asensor-status" style="color:var(--amber-500)">⚠ Below threshold (45%)</div>
+              </div>
+            </div>
+            <div class="asensor-actions">
+              <button class="btn btn-blue btn-sm" onclick="openModal('irrigate','C5')"><i class="ti ti-droplet"></i> Irrigate C5</button>
+              <button class="btn btn-ghost btn-sm" onclick="openModal('irrigate-schedule','')"><i class="ti ti-calendar"></i> Schedule</button>
+            </div>
+          </div>
+
+          <!-- Nitrogen / NPK -->
+          <div class="action-sensor-card warn">
+            <div class="asensor-top">
+              <div>
+                <div class="asensor-icon" style="background:var(--amber-100)"><i class="ti ti-leaf" style="color:var(--amber-500)"></i></div>
+              </div>
+              <div style="text-align:right">
+                <div class="asensor-val" style="color:var(--amber-500)">42</div>
+                <div class="asensor-label">Nitrogen · Zone A4 (ppm)</div>
+                <div class="asensor-status" style="color:var(--amber-500)">⚠ Low (min 50 ppm)</div>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-3)">NPK: N 42 · P 18 · K 24</div>
+            <div class="asensor-actions">
+              <button class="btn btn-amber btn-sm" onclick="openModal('npk','A4')"><i class="ti ti-spray"></i> Spray fertilizer</button>
+              <button class="btn btn-ghost btn-sm" onclick="openModal('npk-schedule','')"><i class="ti ti-calendar"></i> Schedule</button>
+            </div>
+          </div>
+
+          <!-- Soil pH -->
+          <div class="action-sensor-card">
+            <div class="asensor-top">
+              <div>
+                <div class="asensor-icon" style="background:var(--purple-100)"><i class="ti ti-test-pipe" style="color:var(--purple-500)"></i></div>
+              </div>
+              <div style="text-align:right">
+                <div class="asensor-val">6.8</div>
+                <div class="asensor-label">Soil pH · Field avg</div>
+                <div class="asensor-status s-good" style="color:var(--green-500)">✓ Neutral (ideal 6.5–7.0)</div>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-3)">Zone D6: pH 5.8 · slightly acidic</div>
+            <div class="asensor-actions">
+              <button class="btn btn-ghost btn-sm" onclick="openModal('lime','D6')"><i class="ti ti-arrow-up"></i> Apply lime (raise pH)</button>
+              <button class="btn btn-ghost btn-sm" onclick="openModal('sulfur','')"><i class="ti ti-arrow-down"></i> Apply sulfur</button>
+            </div>
+          </div>
+
+          <!-- Soil compaction -->
+          <div class="action-sensor-card">
+            <div class="asensor-top">
+              <div>
+                <div class="asensor-icon" style="background:#f0e6d3"><i class="ti ti-layers-subtract" style="color:var(--soil)"></i></div>
+              </div>
+              <div style="text-align:right">
+                <div class="asensor-val">1.4</div>
+                <div class="asensor-label">Compaction MPa · avg</div>
+                <div class="asensor-status" style="color:var(--green-500)">✓ Acceptable</div>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-3)">Zone C3: 2.1 MPa — monitor</div>
+            <div class="asensor-actions">
+              <button class="btn btn-ghost btn-sm" onclick="openModal('aerate','C3')"><i class="ti ti-robot"></i> Aerate C3</button>
+            </div>
+          </div>
+
+          <!-- Pest traps -->
+          <div class="action-sensor-card warn">
+            <div class="asensor-top">
+              <div>
+                <div class="asensor-icon" style="background:var(--red-100)"><i class="ti ti-bug" style="color:var(--red-500)"></i></div>
+              </div>
+              <div style="text-align:right">
+                <div class="asensor-val" style="color:var(--red-500)">High</div>
+                <div class="asensor-label">Pest trap count · B3–B4</div>
+                <div class="asensor-status" style="color:var(--red-500)">⚠ 48 catches / 24h</div>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-3)">Aphid infestation suspected</div>
+            <div class="asensor-actions">
+              <button class="btn btn-red btn-sm" onclick="openModal('pesticide','B3-B4')"><i class="ti ti-spray"></i> Spray pesticide</button>
+              <button class="btn btn-ghost btn-sm" onclick="openModal('survey-pest','')"><i class="ti ti-drone"></i> Scout first</button>
+            </div>
+          </div>
+
+          <!-- Seeding readiness -->
+          <div class="action-sensor-card">
+            <div class="asensor-top">
+              <div>
+                <div class="asensor-icon" style="background:var(--green-100)"><i class="ti ti-seeding" style="color:var(--green-600)"></i></div>
+              </div>
+              <div style="text-align:right">
+                <div class="asensor-val" style="color:var(--green-600)">Ready</div>
+                <div class="asensor-label">Seeding · Zone D6</div>
+                <div class="asensor-status" style="color:var(--green-500)">✓ Soil prep complete</div>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-3)">Empty zone · 0.4 ha available</div>
+            <div class="asensor-actions">
+              <button class="btn btn-primary btn-sm" onclick="openModal('seed','D6')"><i class="ti ti-seeding"></i> Plant now</button>
+              <button class="btn btn-ghost btn-sm" onclick="nav('planner',document.querySelectorAll('.nav-item')[8])"><i class="ti ti-calendar-plus"></i> Crop planner</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ENVIRONMENTAL (READ-ONLY) -->
+      <div>
+        <div class="sensor-section-label"><i class="ti ti-eye" style="color:var(--text-3)"></i> Environmental context — read-only, informs spray timing</div>
+        <div class="env-grid">
+          <div class="env-card">
+            <i class="ti ti-temperature env-icon"></i>
+            <div><div class="env-val">27°C</div><div class="env-label">Air temperature</div><div class="env-note">Safe for spraying</div></div>
+          </div>
+          <div class="env-card">
+            <i class="ti ti-droplets env-icon"></i>
+            <div><div class="env-val">71%</div><div class="env-label">Relative humidity</div><div class="env-note">Normal — no action needed</div></div>
+          </div>
+          <div class="env-card">
+            <i class="ti ti-seeding env-icon" style="color:var(--text-3)"></i>
+            <div><div class="env-val">412</div><div class="env-label">CO₂ ppm</div><div class="env-note">Normal ambient level</div></div>
+          </div>
+          <div class="env-card">
+            <i class="ti ti-wind env-icon"></i>
+            <div><div class="env-val">8 km/h</div><div class="env-label">Wind speed</div><div class="env-note">Low — safe for drone spray</div></div>
+          </div>
+          <div class="env-card">
+            <i class="ti ti-cloud-rain env-icon"></i>
+            <div><div class="env-val">0 mm</div><div class="env-label">Rainfall today</div><div class="env-note">Rain Wed–Thu (8–12 mm)</div></div>
+          </div>
+          <div class="env-card">
+            <i class="ti ti-sun env-icon"></i>
+            <div><div class="env-val">680</div><div class="env-label">Solar rad W/m²</div><div class="env-note">Optimal for photosynthesis</div></div>
+          </div>
+          <div class="env-card">
+            <i class="ti ti-arrows-right-left env-icon"></i>
+            <div><div class="env-val">218°</div><div class="env-label">Wind direction</div><div class="env-note">SSW — spray E–W rows</div></div>
+          </div>
+          <div class="env-card">
+            <i class="ti ti-thermometer env-icon"></i>
+            <div><div class="env-val">19°C</div><div class="env-label">Soil temp (10 cm)</div><div class="env-note">Good for germination</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moisture by zone -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">Soil moisture by zone</span><span class="pill pill-blue">avg %</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div class="hbar-row"><span class="hbar-label">Zone A</span><div class="hbar-track"><div class="hbar-fill" style="width:64%;background:var(--blue-500)"></div></div><span class="hbar-val">64%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Zone B</span><div class="hbar-track"><div class="hbar-fill" style="width:55%;background:var(--blue-500)"></div></div><span class="hbar-val">55%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Zone C</span><div class="hbar-track"><div class="hbar-fill" style="width:70%;background:#93c5fd"></div></div><span class="hbar-val">70%</span><button class="btn btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" onclick="openModal('irrigate','C5')">Fix C5</button></div>
+          <div class="hbar-row"><span class="hbar-label">Zone D</span><div class="hbar-track"><div class="hbar-fill" style="width:41%;background:var(--amber-500)"></div></div><span class="hbar-val">41%</span><button class="btn btn-blue btn-sm" style="font-size:11px;padding:3px 8px" onclick="openModal('irrigate','D6')">Irrigate</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SPRAY & SEED ── -->
+    <div class="page" id="page-spray">
+      <div class="page-header">
+        <div><div class="page-title">Spray &amp; Seed dispatch</div><div class="page-sub">Schedule and dispatch precision applications</div></div>
+        <button class="btn btn-primary" onclick="openModal('custom-spray','')"><i class="ti ti-plus"></i> Custom dispatch</button>
+      </div>
+
+      <div class="grid-4">
+        <div class="metric"><div class="metric-label">Sprays today</div><div class="metric-val">3</div><div class="metric-sub">Fungicide · N · Herbicide</div></div>
+        <div class="metric"><div class="metric-label">Area covered</div><div class="metric-val">2.1 ha</div><div class="metric-sub metric-up">↑ on track</div></div>
+        <div class="metric"><div class="metric-label">Tank remaining</div><div class="metric-val">68%</div><div class="metric-sub">UAV-1 tank needs refill</div></div>
+        <div class="metric"><div class="metric-label">Seeds planted</div><div class="metric-val">0</div><div class="metric-sub">D6 queued for today</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Quick dispatch</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="background:var(--bg);border-radius:8px;padding:12px">
+              <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">💧 Irrigation</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-blue btn-sm" onclick="openModal('irrigate','A')">Zone A</button>
+                <button class="btn btn-blue btn-sm" onclick="openModal('irrigate','B')">Zone B</button>
+                <button class="btn btn-blue btn-sm" onclick="openModal('irrigate','C5')">C5 — urgent</button>
+                <button class="btn btn-blue btn-sm" onclick="openModal('irrigate','D')">Zone D</button>
+                <button class="btn btn-ghost btn-sm" onclick="openModal('irrigate','all')">All zones</button>
+              </div>
+            </div>
+            <div style="background:var(--bg);border-radius:8px;padding:12px">
+              <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">🌱 Fertilizer / NPK</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-amber btn-sm" onclick="openModal('npk','A4')">N boost — A4</button>
+                <button class="btn btn-amber btn-sm" onclick="openModal('npk','B')">Foliar — Zone B</button>
+                <button class="btn btn-ghost btn-sm" onclick="openModal('npk','custom')">Custom mix</button>
+              </div>
+            </div>
+            <div style="background:var(--bg);border-radius:8px;padding:12px">
+              <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">⚗️ pH Correction</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-purple btn-sm" onclick="openModal('lime','D6')">Lime D6 (raise pH)</button>
+                <button class="btn btn-ghost btn-sm" onclick="openModal('sulfur','')">Sulfur (lower pH)</button>
+              </div>
+            </div>
+            <div style="background:var(--bg);border-radius:8px;padding:12px">
+              <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">🐛 Pest / Disease</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-red btn-sm" onclick="openModal('pesticide','B3-B4')">Pesticide B3–B4</button>
+                <button class="btn btn-red btn-sm" onclick="openModal('fungicide','')">Fungicide</button>
+                <button class="btn btn-ghost btn-sm" onclick="openModal('herbicide','')">Herbicide</button>
+              </div>
+            </div>
+            <div style="background:var(--bg);border-radius:8px;padding:12px">
+              <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">🌾 Seeding</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-primary btn-sm" onclick="openModal('seed','D6')">Plant D6 (empty)</button>
+                <button class="btn btn-ghost btn-sm" onclick="nav('planner',document.querySelectorAll('.nav-item')[8])">Crop planner first</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="card-title">Scheduled applications</span><span class="pill pill-gray">today</span></div>
+          <div class="spray-schedule-row">
+            <span class="pill pill-amber" style="min-width:50px;justify-content:center">11:00</span>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">Foliar nitrogen — Zone A4</div><div style="font-size:11.5px;color:var(--text-3)">UAV-1 spray mode · 20L solution · 42→55 ppm target</div></div>
+            <span class="pill pill-amber">Queued</span>
+          </div>
+          <div class="spray-schedule-row">
+            <span class="pill pill-red" style="min-width:50px;justify-content:center">Now</span>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">Fungicide — Zones B3–B4</div><div style="font-size:11.5px;color:var(--text-3)">UAV-1 spray mode · Blight treatment · 78% bat</div></div>
+            <span class="pill pill-red">In flight</span>
+          </div>
+          <div class="spray-schedule-row">
+            <span class="pill pill-gray" style="min-width:50px;justify-content:center">14:30</span>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">Irrigation — Zone C5</div><div style="font-size:11.5px;color:var(--text-3)">Drip system · 30 min run · drought stress</div></div>
+            <span class="pill pill-gray">Queued</span>
+          </div>
+          <div class="spray-schedule-row">
+            <span class="pill pill-gray" style="min-width:50px;justify-content:center">16:00</span>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">Seeding — Zone D6</div><div style="font-size:11.5px;color:var(--text-3)">MPAR-1 seeder head · Cover crop (pending crop plan)</div></div>
+            <button class="btn btn-ghost btn-sm">Change crop</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DRONES ── -->
+    <div class="page" id="page-drones">
+      <div class="page-header">
+        <div><div class="page-title">Drone</div><div class="page-sub">UAV-1 · Multi-role agricultural drone</div></div>
+        <button class="btn btn-primary" onclick="openModal('custom-spray','')"><i class="ti ti-plus"></i> Dispatch drone</button>
+      </div>
+      <div class="grid-4">
+        <div class="metric"><div class="metric-label">Status</div><div class="metric-val" style="color:var(--green-600)">Flying</div></div>
+        <div class="metric"><div class="metric-label">Battery</div><div class="metric-val">78%</div></div>
+        <div class="metric"><div class="metric-label">Flights today</div><div class="metric-val">11</div></div>
+        <div class="metric"><div class="metric-label">Area covered</div><div class="metric-val">3.2 ha</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">UAV-1 · Multi-role drone</span><span class="pill pill-green"><span class="dot-live"></span> Live</span></div>
+        <div class="drone-row">
+          <div class="drone-avatar" style="background:var(--green-100)"><i class="ti ti-drone" style="color:var(--green-600)"></i></div>
+          <div style="flex:1">
+            <div class="drone-name">UAV-1</div>
+            <div class="drone-task">Current mode: NDVI multispectral scan · Zones C–D</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:4px">Swappable payload — survey · spray · pollination</div>
+          </div>
+          <div class="bat-wrap"><div class="bat-label">78%</div><div class="bat-bar"><div class="bat-fill" style="width:78%;background:var(--green-500)"></div></div></div>
+          <span class="pill pill-green">Flying</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Survey mode</div>
+            <div style="font-size:12.5px;color:var(--text)">Multispectral · Thermal · RGB</div>
+            <div style="font-size:11.5px;color:var(--green-600);margin-top:2px">✓ Active now</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Spray mode</div>
+            <div style="font-size:12.5px;color:var(--text)">12 L tank · Variable-rate nozzles</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Next: Fungicide B3–B4 after scan</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Pollination mode</div>
+            <div style="font-size:12.5px;color:var(--text)">Vibration + electrostatic</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Queued: Zones A1–A3 tomorrow</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('custom-spray','')"><i class="ti ti-drone"></i> Dispatch UAV-1</button>
+          <button class="btn btn-ghost btn-sm" onclick="bookService(this,'UAV-1')"><i class="ti ti-tool"></i> Book service</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROBOTS ── -->
+    <div class="page" id="page-robots">
+      <div class="page-header">
+        <div><div class="page-title">Ground robot</div><div class="page-sub">MPAR-1 · Multi-purpose · Swappable tool head</div></div>
+        <button class="btn btn-primary"><i class="ti ti-plus"></i> Assign task</button>
+      </div>
+      <div class="grid-4">
+        <div class="metric"><div class="metric-label">Status</div><div class="metric-val" style="color:var(--green-600)">Active</div></div>
+        <div class="metric"><div class="metric-label">Tasks done today</div><div class="metric-val">7</div></div>
+        <div class="metric"><div class="metric-label">Rows worked</div><div class="metric-val">42</div></div>
+        <div class="metric"><div class="metric-label">Water saved</div><div class="metric-val">18%</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">MPAR-1 · Multi-purpose ground robot</span><span class="pill pill-green">Active</span></div>
+        <div class="robot-row">
+          <div class="robot-avatar" style="background:var(--green-100)"><i class="ti ti-robot" style="color:var(--green-600)"></i></div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span class="drone-name">MPAR-1</span>
+              <span class="pill pill-green"><span class="dot-live"></span> Working</span>
+            </div>
+            <div class="drone-task" style="margin-bottom:4px">Current tool: Harvester head · Tomatoes · Row 7 of 18</div>
+            <div class="prog-bar"><div class="prog-fill" style="width:39%"></div></div>
+            <div class="prog-meta"><span>39%</span><span>Est. 2h 14m remaining on harvest</span></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:2px solid var(--green-400)">
+            <div style="font-size:11px;color:var(--green-600);font-weight:600;text-transform:uppercase;margin-bottom:4px">🌾 Harvester head</div>
+            <div style="font-size:12px;color:var(--text)">Vision pick · 1,000/hr</div>
+            <div style="font-size:11.5px;color:var(--green-600);margin-top:2px">✓ Installed now</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">🌿 Weeder head</div>
+            <div style="font-size:12px;color:var(--text)">Mechanical tine · Inter-row</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Queued: Zone C after harvest</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">🌱 Seeder head</div>
+            <div style="font-size:12px;color:var(--text)">Precision metering · GPS row</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Queued: Zone D6 at 16:00</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="openModal('aerate','')"><i class="ti ti-robot"></i> Assign task</button>
+          <button class="btn btn-ghost btn-sm" onclick="bookService(this,'MPAR-1')"><i class="ti ti-tool"></i> Book service</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Today's harvest output</span><span class="pill pill-green">MPAR-1 active</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div class="hbar-row"><span class="hbar-label">Tomatoes</span><div class="hbar-track"><div class="hbar-fill" style="width:74%;background:var(--green-500)"></div></div><span class="hbar-val">148 kg</span></div>
+          <div class="hbar-row"><span class="hbar-label">Peppers</span><div class="hbar-track"><div class="hbar-fill" style="width:48%;background:var(--green-500)"></div></div><span class="hbar-val">62 kg</span></div>
+          <div class="hbar-row"><span class="hbar-label">Spinach</span><div class="hbar-track"><div class="hbar-fill" style="width:31%;background:#6ee7b7"></div></div><span class="hbar-val">41 kg</span></div>
+          <div class="hbar-row"><span class="hbar-label">Lettuce</span><div class="hbar-track"><div class="hbar-fill" style="width:22%;background:#6ee7b7"></div></div><span class="hbar-val">28 kg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CROP PLANNER ── -->
+    <div class="page" id="page-planner">
+      <div class="page-header">
+        <div><div class="page-title">Crop Planner</div><div class="page-sub">AI-powered planting recommendations based on your soil and climate</div></div>
+        <span class="pill pill-green"><span class="dot-live"></span> AI Online</span>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Get crop recommendations</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="modal-field">
+              <label class="modal-label">Zone to plant</label>
+              <select class="modal-select" id="planner-zone">
+                <option value="D6">D6 — Empty (0.4 ha)</option>
+                <option value="A4">A4 — Pepper (rotation)</option>
+                <option value="B3">B3 — Spinach (post-blight)</option>
+                <option value="D1">D1 — Cover crop (rotation)</option>
+              </select>
+            </div>
+            <div class="modal-field">
+              <label class="modal-label">Season / planting window</label>
+              <select class="modal-select" id="planner-season">
+                <option>Monsoon (Jun–Sep)</option>
+                <option>Post-monsoon (Oct–Nov)</option>
+                <option>Winter (Dec–Feb)</option>
+                <option>Pre-monsoon (Mar–May)</option>
+              </select>
+            </div>
+            <div class="modal-field">
+              <label class="modal-label">Priority</label>
+              <select class="modal-select" id="planner-priority">
+                <option>Maximize yield</option>
+                <option>Soil health / rotation</option>
+                <option>Water efficiency</option>
+                <option>Highest market value</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="getPlannerRecs()"><i class="ti ti-brain"></i> Get AI recommendations</button>
+          </div>
+        </div>
+
+        <div class="card" id="planner-results-card">
+          <div class="card-head"><span class="card-title">Recommendations</span><span class="pill pill-gray" id="planner-zone-label">Select zone to start</span></div>
+          <div id="planner-results">
+            <div style="color:var(--text-3);font-size:13px;padding:20px 0;text-align:center">
+              <i class="ti ti-plant-2" style="font-size:32px;display:block;margin-bottom:8px;opacity:.3"></i>
+              Configure zone and season, then ask AI for a personalized crop plan.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-title">Current rotation map</span><span class="pill pill-blue">Kathmandu Valley — June 2025</span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div style="background:var(--green-50);border:1px solid var(--green-100);border-radius:8px;padding:10px">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:600">Zone A · Tomatoes/Peppers</div>
+            <div style="font-size:13px;font-weight:500;margin-top:4px;color:var(--text)">Harvest in ~18 days</div>
+            <div style="font-size:11.5px;color:var(--text-3)">Rotate to legumes (beans/peas) post-harvest to fix nitrogen</div>
+          </div>
+          <div style="background:var(--green-50);border:1px solid var(--green-100);border-radius:8px;padding:10px">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:600">Zone B · Spinach/Lettuce</div>
+            <div style="font-size:13px;font-weight:500;margin-top:4px;color:var(--text)">B3–B4 recovering from blight</div>
+            <div style="font-size:11.5px;color:var(--text-3)">Skip leafy greens next cycle — try brassicas or root veg</div>
+          </div>
+          <div style="background:var(--amber-100);border:1px solid var(--amber-500);border-radius:8px;padding:10px">
+            <div style="font-size:11px;color:var(--amber-600);text-transform:uppercase;font-weight:600">Zone C · Carrots/Lettuce</div>
+            <div style="font-size:13px;font-weight:500;margin-top:4px;color:var(--text)">C5 drought stress</div>
+            <div style="font-size:11.5px;color:var(--text-3)">Consider drought-tolerant varieties next season</div>
+          </div>
+          <div style="background:#f3f4f6;border:1px solid var(--border);border-radius:8px;padding:10px">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:600">Zone D · Beans/Empty</div>
+            <div style="font-size:13px;font-weight:500;margin-top:4px;color:var(--text)">D6 ready to plant</div>
+            <div style="font-size:11.5px;color:var(--text-3)"><button class="btn btn-primary btn-sm" onclick="nav('planner',this);document.getElementById('planner-zone').value='D6'">Plan D6 now →</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI ADVISOR ── -->
+    <div class="page" id="page-ai">
+      <div class="page-header">
+        <div><div class="page-title">AI Advisor</div><div class="page-sub">AI with live access to your farm data</div></div>
+        <span class="pill pill-green"><span class="dot-live"></span> Online</span>
+      </div>
+      <div class="card">
+        <div class="quick-prompts">
+          <button class="quick-btn" onclick="quickQ('What crops should I plant in Zone D6 for the monsoon season?')">What to plant in D6?</button>
+          <button class="quick-btn" onclick="quickQ('When should I harvest the tomatoes?')">Tomato harvest timing?</button>
+          <button class="quick-btn" onclick="quickQ('How can I improve water efficiency on my farm?')">Improve water efficiency</button>
+          <button class="quick-btn" onclick="quickQ('Why is Zone B3 showing a disease alert and what should I do after the fungicide treatment?')">Zone B3 disease alert</button>
+          <button class="quick-btn" onclick="quickQ('Should I irrigate Zone C5 now or wait? Soil moisture is 39%.')">Irrigate C5 now?</button>
+          <button class="quick-btn" onclick="quickQ('How do I fix the soil pH in Zone D6 which is at 5.8? Should I apply lime?')">Fix Zone D6 pH?</button>
+          <button class="quick-btn" onclick="quickQ('My pest trap count in B3-B4 is very high. Is this an aphid infestation? What pesticide should I use?')">Pest infestation advice</button>
+        </div>
+        <div class="chat-messages" id="chat-box">
+          <div class="chat-msg">
+            <div class="chat-meta">AgroNet AI · 09:14</div>
+            <div class="chat-bubble">Good morning. I've completed today's NDVI scan. Zones B3–B4 show early-stage fungal blight — UAV-1 is already en route (spray mode). Zone A4 shows nitrogen deficiency at 42 ppm (threshold: 50 ppm); foliar feed is scheduled for 11:00. Zone C5 has drought stress at 39% moisture — I recommend irrigating before 15:00. Zone D6 is empty and ready; use the Crop Planner to pick the best monsoon crop. Tomato harvest window opens in approximately 18 days.</div>
+          </div>
+          <div class="chat-msg">
+            <div class="chat-meta">AgroNet AI · 09:31</div>
+            <div class="chat-bubble">Rain is forecast Wednesday–Thursday (8–12 mm). I recommend advancing the Zone C irrigation cycle to Monday to allow soil drainage before the wet period. Also: avoid spraying on Wednesday — wind and rain will reduce pesticide adhesion. Want me to reschedule?</div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="ai-input" type="text" placeholder="Ask about your crops, soil pH, planting decisions, pests, schedule…" onkeydown="if(event.key==='Enter')sendChat()"/>
+          <button class="btn btn-primary" onclick="sendChat()"><i class="ti ti-send"></i> Ask</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TASKS ── -->
+    <div class="page" id="page-tasks">
+      <div class="page-header">
+        <div><div class="page-title">Task queue</div><div class="page-sub">AI-generated and manual tasks for today</div></div>
+        <button class="btn btn-ghost"><i class="ti ti-plus"></i> Add task</button>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Today — Saturday 21 June</span><span class="pill pill-blue">AI-managed</span></div>
+        <div class="task-row"><div class="task-check done"><i class="ti ti-check" style="font-size:11px"></i></div><span class="task-text done-text">UAV-1 NDVI morning scan — completed 07:42</span><span class="pill pill-green">Done</span></div>
+        <div class="task-row"><div class="task-check done"><i class="ti ti-check" style="font-size:11px"></i></div><span class="task-text done-text">Deploy UAV-1 (spray mode) to B3–B4 for fungicide treatment</span><span class="pill pill-green">Done</span></div>
+        <div class="task-row"><div class="task-check active"><i class="ti ti-loader" style="font-size:11px"></i></div><span class="task-text">Foliar nitrogen treatment — Zone A4 via UAV-1 (spray mode)</span><span class="pill pill-amber">In progress</span></div>
+        <div class="task-row"><div class="task-check active"><i class="ti ti-loader" style="font-size:11px"></i></div><span class="task-text">MPAR-1 mechanical weeding — Zone C inter-row (weeder head)</span><span class="pill pill-amber">In progress</span></div>
+        <div class="task-row"><div class="task-check"></div><span class="task-text">UAV-1 thermal anomaly scan — scheduled 14:30</span><span class="pill pill-gray">Queued</span></div>
+        <div class="task-row"><div class="task-check"></div><span class="task-text">MPAR-1 replanting prep — Zone D6 (seeder head, pending crop plan)</span><span class="pill pill-gray">Queued</span></div>
+        <div class="task-row"><div class="task-check"></div><span class="task-text">Irrigate Zone C5 — drought stress 39% moisture</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-blue btn-sm" onclick="openModal('irrigate','C5')">Dispatch</button>
+            <button class="btn btn-ghost btn-sm">Snooze</button>
+          </div>
+        </div>
+        <div class="task-row"><div class="task-check"></div><span class="task-text">Advance Zone C irrigation to Monday — AI recommendation</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-primary btn-sm" onclick="approveTask(this)">Approve</button>
+            <button class="btn btn-ghost btn-sm">Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── IRRIGATION SCHEDULE ── -->
+    <div class="page" id="page-irrigation">
+      <div class="page-header">
+        <div><div class="page-title">Irrigation</div><div class="page-sub">Automated scheduling · Rain-aware · Zone-by-zone control</div></div>
+        <button class="btn btn-primary" onclick="addIrrigationRule()"><i class="ti ti-plus"></i> Add rule</button>
+      </div>
+
+      <!-- Live status bar -->
+      <div class="card" style="background:var(--blue-100);border-color:#93c5fd">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px"><span class="dot-live" style="background:#3b82f6"></span><strong style="font-size:13px;color:var(--blue-600)">Zone A6 irrigating now</strong><span style="font-size:12px;color:var(--blue-600)">· 14 min remaining · 120L dispensed</span></div>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto;border-color:#93c5fd;color:var(--blue-600)" onclick="this.textContent='⏹ Stopped'">⏹ Stop irrigation</button>
+        </div>
+      </div>
+
+      <!-- Weather warning -->
+      <div style="background:#fef9ec;border:1px solid #fde68a;border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:10px">
+        <i class="ti ti-cloud-rain" style="font-size:20px;color:var(--amber-500)"></i>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--amber-600)">Rain expected Wed–Thu (8–12 mm)</div>
+          <div style="font-size:12px;color:var(--text-3)">AI has paused all Wednesday and Thursday schedules. Zones that need water will be irrigated Monday–Tuesday.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="this.textContent='Override applied'">Override</button>
+      </div>
+
+      <!-- Zone schedule table -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">Zone schedules</span><span class="pill pill-blue">Auto-adjusts with weather</span></div>
+        <div style="display:flex;flex-direction:column;gap:0">
+
+          <!-- header row -->
+          <div style="display:grid;grid-template-columns:70px 80px 1fr 90px 80px 100px;gap:10px;padding:6px 10px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);border-bottom:1px solid var(--border)">
+            <span>Zone</span><span>Moisture</span><span>Schedule</span><span>Volume</span><span>Status</span><span>Action</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:70px 80px 1fr 90px 80px 100px;gap:10px;padding:10px;align-items:center;border-bottom:1px solid var(--border)">
+            <span style="font-weight:500">A · Tomato</span>
+            <span style="font-family:var(--mono);font-size:13px;color:var(--green-600)">64%</span>
+            <span style="font-size:12.5px;color:var(--text-2)">Mon, Thu · 06:00 · 25 min</span>
+            <span style="font-size:12.5px">40 L/zone</span>
+            <span class="pill pill-green" style="font-size:11px">On track</span>
+            <div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="editSchedule(this,'A')">Edit</button><button class="btn btn-blue btn-sm" onclick="runNow(this,'A')">Run now</button></div>
+          </div>
+          <div style="display:grid;grid-template-columns:70px 80px 1fr 90px 80px 100px;gap:10px;padding:10px;align-items:center;border-bottom:1px solid var(--border)">
+            <span style="font-weight:500">B · Spinach</span>
+            <span style="font-family:var(--mono);font-size:13px;color:var(--green-600)">55%</span>
+            <span style="font-size:12.5px;color:var(--text-2)">Tue, Fri · 06:30 · 20 min</span>
+            <span style="font-size:12.5px">32 L/zone</span>
+            <span class="pill pill-green" style="font-size:11px">On track</span>
+            <div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="editSchedule(this,'B')">Edit</button><button class="btn btn-blue btn-sm" onclick="runNow(this,'B')">Run now</button></div>
+          </div>
+          <div style="display:grid;grid-template-columns:70px 80px 1fr 90px 80px 100px;gap:10px;padding:10px;align-items:center;border-bottom:1px solid var(--border)">
+            <span style="font-weight:500">C · Carrot</span>
+            <span style="font-family:var(--mono);font-size:13px;color:var(--blue-500)">70%</span>
+            <span style="font-size:12.5px;color:var(--text-3)">Wed · 07:00 — <span style="color:var(--amber-500);font-weight:500">paused (rain)</span></span>
+            <span style="font-size:12.5px">35 L/zone</span>
+            <span class="pill pill-amber" style="font-size:11px">Paused</span>
+            <div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="editSchedule(this,'C')">Edit</button><button class="btn btn-blue btn-sm" onclick="runNow(this,'C')">Run now</button></div>
+          </div>
+          <div style="display:grid;grid-template-columns:70px 80px 1fr 90px 80px 100px;gap:10px;padding:10px;align-items:center;background:#fef9ec;border-radius:0 0 var(--radius) var(--radius)">
+            <span style="font-weight:500">D · Beans</span>
+            <span style="font-family:var(--mono);font-size:13px;color:var(--amber-500)">41%</span>
+            <span style="font-size:12.5px;color:var(--red-500);font-weight:500">⚠ No schedule set — dry!</span>
+            <span style="font-size:12.5px">—</span>
+            <span class="pill pill-red" style="font-size:11px">Dry</span>
+            <button class="btn btn-primary btn-sm" onclick="scheduleZoneD(this)"><i class="ti ti-plus"></i> Set schedule</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Automation rules -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">Automation rules</span><span class="pill pill-green">Active</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="irr-rules">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:var(--radius-sm)">
+            <i class="ti ti-cloud-rain" style="color:var(--blue-500);font-size:18px"></i>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">Skip if rain forecast &gt; 5 mm within 48h</div><div style="font-size:12px;color:var(--text-3)">Checks OpenWeatherMap every 6 hours</div></div>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" checked onchange="toggleRule(this)"><span style="font-size:12.5px">Enabled</span></label>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:var(--radius-sm)">
+            <i class="ti ti-wind" style="color:var(--text-3);font-size:18px"></i>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">Ground drones if wind &gt; 8 m/s</div><div style="font-size:12px;color:var(--text-3)">Prevents spray drift — safety critical</div></div>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" checked onchange="toggleRule(this)"><span style="font-size:12.5px">Enabled</span></label>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:var(--radius-sm)">
+            <i class="ti ti-droplet" style="color:var(--blue-500);font-size:18px"></i>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">Auto-irrigate if moisture drops below 45%</div><div style="font-size:12px;color:var(--text-3)">Emergency trigger — runs immediately, no schedule needed</div></div>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" checked onchange="toggleRule(this)"><span style="font-size:12.5px">Enabled</span></label>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:var(--radius-sm)">
+            <i class="ti ti-temperature" style="color:var(--red-500);font-size:18px"></i>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">Irrigate at dawn if temp &gt; 35°C forecast</div><div style="font-size:12px;color:var(--text-3)">Prevents heat stress — runs at 05:30 before peak heat</div></div>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" onchange="toggleRule(this)"><span style="font-size:12.5px">Disabled</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PEST & DISEASE ── -->
+    <div class="page" id="page-pest">
+      <div class="page-header">
+        <div><div class="page-title">Pest &amp; Disease</div><div class="page-sub">AI-detected from drone imagery · Spray dispatch · Treatment history</div></div>
+        <button class="btn btn-primary" onclick="runScan()"><i class="ti ti-drone"></i> Run disease scan now</button>
+      </div>
+
+      <!-- Active outbreaks -->
+      <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px"><i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-2px;color:var(--red-500)"></i> Active outbreaks</div>
+
+      <div class="card" style="border-color:#fca5a5">
+        <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span class="pill pill-red">High severity</span>
+              <span style="font-size:13px;font-weight:600">Fungal blight — <em>Phytophthora infestans</em></span>
+            </div>
+            <div style="font-size:12.5px;color:var(--text-2);margin-bottom:4px"><i class="ti ti-map-pin"></i> Zones B3, B4 · Spinach · Detected 07:42 today via drone NDVI scan</div>
+            <div style="font-size:12px;color:var(--text-3)">Confidence: 94% · Affected area: ~0.3 ha · Risk of spread to B2, B5 within 48h if untreated</div>
+            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+              <div style="background:var(--red-100);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px"><strong>Recommended:</strong> Copper-based fungicide · 2.5 L/ha · Apply before 10:00</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            <span style="font-size:11px;color:var(--text-3);text-align:center">UAV-1 spray status</span>
+            <span class="pill pill-amber" style="justify-content:center"><span class="dot-live" style="background:var(--amber-500)"></span> Spraying B3–B4</span>
+            <button class="btn btn-ghost btn-sm" onclick="this.textContent='✓ Recalled'">Recall drone</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-color:#fde68a">
+        <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span class="pill pill-amber">Medium severity</span>
+              <span style="font-size:13px;font-weight:600">Aphid infestation</span>
+            </div>
+            <div style="font-size:12.5px;color:var(--text-2);margin-bottom:4px"><i class="ti ti-map-pin"></i> Zone A5 · Pepper · Detected by MPAR-1 camera</div>
+            <div style="font-size:12px;color:var(--text-3)">Confidence: 78% · Colony size: moderate · Beneficial insects present — consider biological control first</div>
+            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+              <div style="background:var(--amber-100);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px"><strong>Option 1:</strong> Neem oil spray · 1.5 L/ha · Organic-certified</div>
+              <div style="background:var(--amber-100);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px"><strong>Option 2:</strong> Rescan in 48h — monitor only</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            <button class="btn btn-primary btn-sm" onclick="dispatchPestSpray(this,'A5','Neem oil')">Spray neem oil</button>
+            <button class="btn btn-ghost btn-sm" onclick="snooze(this)">Monitor 48h</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clear zones -->
+      <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;margin-top:4px"><i class="ti ti-circle-check" style="font-size:13px;vertical-align:-2px;color:var(--green-500)"></i> Clear zones</div>
+      <div class="card">
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <span class="pill pill-green">A1 Tomato ✓</span>
+          <span class="pill pill-green">A2 Tomato ✓</span>
+          <span class="pill pill-green">A3 Tomato ✓</span>
+          <span class="pill pill-green">B1 Spinach ✓</span>
+          <span class="pill pill-green">B2 Spinach ✓</span>
+          <span class="pill pill-green">C1–C6 Carrot ✓</span>
+          <span class="pill pill-green">D1–D5 Beans ✓</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:10px">Last full scan: today 07:42 · Next scheduled: today 14:30</div>
+      </div>
+
+      <!-- Treatment history -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">Treatment history</span><span class="pill pill-gray">Last 30 days</span></div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          <div style="display:grid;grid-template-columns:90px 80px 1fr 90px 80px;gap:10px;padding:6px 8px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;border-bottom:1px solid var(--border)">
+            <span>Date</span><span>Zone</span><span>Treatment</span><span>Applied by</span><span>Result</span>
+          </div>
+          <div style="display:grid;grid-template-columns:90px 80px 1fr 90px 80px;gap:10px;padding:9px 8px;font-size:12.5px;border-bottom:1px solid var(--border);align-items:center">
+            <span style="color:var(--text-3)">21 Jun</span><span>B3–B4</span><span>Copper fungicide — blight</span><span style="color:var(--text-3)">UAV-1</span><span class="pill pill-amber" style="font-size:11px">Ongoing</span>
+          </div>
+          <div style="display:grid;grid-template-columns:90px 80px 1fr 90px 80px;gap:10px;padding:9px 8px;font-size:12.5px;border-bottom:1px solid var(--border);align-items:center">
+            <span style="color:var(--text-3)">18 Jun</span><span>A4</span><span>Foliar nitrogen</span><span style="color:var(--text-3)">UAV-1</span><span class="pill pill-green" style="font-size:11px">Effective</span>
+          </div>
+          <div style="display:grid;grid-template-columns:90px 80px 1fr 90px 80px;gap:10px;padding:9px 8px;font-size:12.5px;border-bottom:1px solid var(--border);align-items:center">
+            <span style="color:var(--text-3)">14 Jun</span><span>C1–C3</span><span>Neem oil — whitefly</span><span style="color:var(--text-3)">UAV-1</span><span class="pill pill-green" style="font-size:11px">Effective</span>
+          </div>
+          <div style="display:grid;grid-template-columns:90px 80px 1fr 90px 80px;gap:10px;padding:9px 8px;font-size:12.5px;align-items:center">
+            <span style="color:var(--text-3)">9 Jun</span><span>All</span><span>Preventive copper spray</span><span style="color:var(--text-3)">UAV-1</span><span class="pill pill-green" style="font-size:11px">Effective</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HARVEST LOG ── -->
+    <div class="page" id="page-harvest">
+      <div class="page-header">
+        <div><div class="page-title">Harvest Log</div><div class="page-sub">Yield tracking · Revenue estimates · Season history</div></div>
+        <button class="btn btn-primary" onclick="logManualHarvest()"><i class="ti ti-plus"></i> Log manual harvest</button>
+      </div>
+
+      <!-- Season summary -->
+      <div class="grid-4">
+        <div class="metric"><div class="metric-label"><i class="ti ti-basket"></i> Season yield</div><div class="metric-val">1.84 t</div><div class="metric-sub metric-up">↑ 12% vs last season</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-currency-dollar"></i> Est. revenue</div><div class="metric-val">₹186k</div><div class="metric-sub">At current market rates</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-calendar"></i> Days to peak harvest</div><div class="metric-val">~18</div><div class="metric-sub">Tomatoes · Zones A1–A3</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-robot"></i> Robot efficiency</div><div class="metric-val">94%</div><div class="metric-sub">Damage rate: &lt; 2%</div></div>
+      </div>
+
+      <!-- Today's harvest -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">Today — 21 June</span><span class="pill pill-green">MPAR-1 active</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div class="hbar-row"><span class="hbar-label">Tomatoes</span><div class="hbar-track"><div class="hbar-fill" style="width:74%;background:var(--green-500)"></div></div><span class="hbar-val">148 kg</span><span style="font-size:11.5px;color:var(--text-3);width:52px;text-align:right">₹8,880</span></div>
+          <div class="hbar-row"><span class="hbar-label">Peppers</span><div class="hbar-track"><div class="hbar-fill" style="width:48%;background:var(--green-500)"></div></div><span class="hbar-val">62 kg</span><span style="font-size:11.5px;color:var(--text-3);width:52px;text-align:right">₹4,960</span></div>
+          <div class="hbar-row"><span class="hbar-label">Spinach</span><div class="hbar-track"><div class="hbar-fill" style="width:31%;background:#6ee7b7"></div></div><span class="hbar-val">41 kg</span><span style="font-size:11.5px;color:var(--text-3);width:52px;text-align:right">₹1,640</span></div>
+          <div class="hbar-row"><span class="hbar-label">Lettuce</span><div class="hbar-track"><div class="hbar-fill" style="width:22%;background:#6ee7b7"></div></div><span class="hbar-val">28 kg</span><span style="font-size:11.5px;color:var(--text-3);width:52px;text-align:right">₹1,120</span></div>
+          <div style="padding:8px 0 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px;font-weight:500">
+            <span>Total today</span><span>279 kg &nbsp;·&nbsp; <span style="color:var(--green-600)">₹16,600</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly chart (ASCII-style bars) -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">Weekly yield — last 7 days (kg)</span></div>
+        <div style="display:flex;align-items:flex-end;gap:8px;height:100px;padding-bottom:4px" id="yield-chart">
+          <!-- Rendered by JS -->
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px" id="yield-labels"></div>
+      </div>
+
+      <!-- Upcoming harvests -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">Upcoming harvest windows</span><span class="pill pill-blue">AI predicted</span></div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          <div style="display:grid;grid-template-columns:1fr 100px 80px 80px auto;gap:10px;padding:6px 8px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;border-bottom:1px solid var(--border)">
+            <span>Crop &amp; Zone</span><span>Window opens</span><span>Est. yield</span><span>Est. value</span><span>Action</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 100px 80px 80px auto;gap:10px;padding:10px 8px;align-items:center;border-bottom:1px solid var(--border)">
+            <div><div style="font-size:13px;font-weight:500">Tomatoes · A1–A3</div><div style="font-size:11.5px;color:var(--text-3)">NDVI 0.80 · Growing well</div></div>
+            <span style="font-size:12.5px">~9 Jul (18d)</span>
+            <span style="font-size:12.5px;font-weight:500">~420 kg</span>
+            <span style="font-size:12.5px;color:var(--green-600);font-weight:500">~₹25.2k</span>
+            <button class="btn btn-ghost btn-sm" onclick="scheduleHarvest(this,'Tomatoes A1-A3')">Schedule</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 100px 80px 80px auto;gap:10px;padding:10px 8px;align-items:center;border-bottom:1px solid var(--border)">
+            <div><div style="font-size:13px;font-weight:500">Carrots · C3–C6</div><div style="font-size:11.5px;color:var(--text-3)">NDVI 0.76 · 3 weeks to full size</div></div>
+            <span style="font-size:12.5px">~14 Jul (23d)</span>
+            <span style="font-size:12.5px;font-weight:500">~180 kg</span>
+            <span style="font-size:12.5px;color:var(--green-600);font-weight:500">~₹9.0k</span>
+            <button class="btn btn-ghost btn-sm" onclick="scheduleHarvest(this,'Carrots C3-C6')">Schedule</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 100px 80px 80px auto;gap:10px;padding:10px 8px;align-items:center">
+            <div><div style="font-size:13px;font-weight:500">Beans · D3–D5</div><div style="font-size:11.5px;color:var(--text-3)">NDVI 0.80 · Peak in ~4 weeks</div></div>
+            <span style="font-size:12.5px">~19 Jul (28d)</span>
+            <span style="font-size:12.5px;font-weight:500">~95 kg</span>
+            <span style="font-size:12.5px;color:var(--green-600);font-weight:500">~₹4.75k</span>
+            <button class="btn btn-ghost btn-sm" onclick="scheduleHarvest(this,'Beans D3-D5')">Schedule</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EQUIPMENT ── -->
+    <div class="page" id="page-equipment">
+      <div class="page-header">
+        <div><div class="page-title">Equipment</div><div class="page-sub">Drones, robots, and sensors · Maintenance tracking · Health status</div></div>
+        <button class="btn btn-ghost"><i class="ti ti-file-report"></i> Export report</button>
+      </div>
+
+      <!-- Fleet health summary -->
+      <div class="grid-4">
+        <div class="metric"><div class="metric-label"><i class="ti ti-drone"></i> Drone (UAV-1)</div><div class="metric-val" style="color:var(--green-600)">Good</div><div class="metric-sub">247 flight hours · No faults</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-robot"></i> Robot (MPAR-1)</div><div class="metric-val" style="color:var(--green-600)">Good</div><div class="metric-sub">421 op. hours · All heads OK</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-antenna"></i> Sensor nodes</div><div class="metric-val" style="color:var(--green-600)">12 / 12</div><div class="metric-sub">All online · Avg battery 74%</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-tool"></i> Next service due</div><div class="metric-val">3d</div><div class="metric-sub">UAV-1 · 200h spray interval</div></div>
+      </div>
+
+      <!-- Drone maintenance -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">UAV-1 maintenance</span></div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          <div style="display:grid;grid-template-columns:110px 90px 80px 1fr 90px auto;gap:10px;padding:6px 8px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;border-bottom:1px solid var(--border)">
+            <span>Unit</span><span>Flight hrs</span><span>Battery</span><span>Last service</span><span>Next due</span><span>Status</span>
+          </div>
+          <div style="display:grid;grid-template-columns:110px 90px 80px 1fr 90px auto;gap:10px;padding:9px 8px;font-size:12.5px;border-bottom:1px solid var(--border);align-items:center">
+            <span style="font-weight:500">UAV-1</span><span>247h</span><span>78%</span><span style="color:var(--text-3)">Jun 1</span><span>Aug 1</span><span class="pill pill-green" style="font-size:11px">Good</span>
+          </div>
+          <div style="padding:10px 8px;font-size:12.5px;border-bottom:1px solid var(--border)">
+            <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:8px">Payload modules</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+              <div style="background:var(--bg);padding:8px 10px;border-radius:6px;font-size:12px"><span style="font-weight:600">Survey head</span><br><span style="color:var(--text-3)">Multispectral + thermal · Good</span></div>
+              <div style="background:var(--bg);padding:8px 10px;border-radius:6px;font-size:12px"><span style="font-weight:600">Spray tank (12 L)</span><br><span style="color:var(--text-3)">Nozzles checked Jun 10 · Good</span></div>
+              <div style="background:var(--bg);padding:8px 10px;border-radius:6px;font-size:12px"><span style="font-weight:600">Pollinator head</span><br><span style="color:var(--text-3)">Calibrated Jun 15 · Good</span></div>
+            </div>
+          </div>
+          <div style="padding:9px 8px;display:flex;align-items:center;gap:12px">
+            <span style="font-size:12.5px;color:var(--text-3)">Next: spray module nozzle service in 3 days</span>
+            <button class="btn btn-ghost btn-sm" onclick="bookService(this,'UAV-1')">Book service</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Robot maintenance -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">MPAR-1 maintenance</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:grid;grid-template-columns:110px 80px 80px 1fr auto;gap:10px;padding:10px;background:var(--bg);border-radius:var(--radius-sm);align-items:center">
+            <span style="font-weight:500">MPAR-1</span>
+            <div><div style="font-size:10.5px;color:var(--text-3)">Op. hours</div><div style="font-size:13px;font-weight:600;font-family:var(--mono)">421h</div></div>
+            <div><div style="font-size:10.5px;color:var(--text-3)">Battery</div><div style="font-size:13px;font-weight:600;font-family:var(--mono);color:var(--green-600)">82%</div></div>
+            <div style="font-size:12px;color:var(--text-3)">Gripper calibration due in 79h · Wheel check: OK · All sensors online</div>
+            <span class="pill pill-green">Good</span>
+          </div>
+          <div style="padding:10px;background:var(--bg);border-radius:var(--radius-sm)">
+            <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:8px">Tool head modules</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+              <div style="background:var(--surface);padding:8px 10px;border-radius:6px;font-size:12px;border:1px solid var(--border)"><span style="font-weight:600">🌾 Harvester</span><br><span style="color:var(--text-3)">Gripper check due 79h · Good</span></div>
+              <div style="background:var(--surface);padding:8px 10px;border-radius:6px;font-size:12px;border:1px solid var(--border)"><span style="font-weight:600">🌿 Weeder</span><br><span style="color:var(--text-3)">Blade replaced Jun 8 · Next ~50h</span></div>
+              <div style="background:var(--surface);padding:8px 10px;border-radius:6px;font-size:12px;border:1px solid var(--border)"><span style="font-weight:600">🌱 Seeder</span><br><span style="color:var(--text-3)">Calibrated Jun 18 · No issues</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sensor node battery -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">Field sensor node battery levels</span><span class="pill pill-gray">LoRaWAN nodes · 2–5 yr battery life</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <script>
+            const nodeBats = [
+              ['A1',88],['A2',91],['A3',85],['A4',72],['A5',68],['A6',90],
+              ['B1',77],['B2',80],['B3',65],['B4',63],['B5',82],['B6',88],
+              ['C1',74],['C2',69],['C3',88],['C4',91],['C5',55],['C6',78],
+              ['D1',92],['D2',89],['D3',84],['D4',87],['D5',80],['D6',95],
+            ];
+            document.write(nodeBats.map(([z,b]) =>
+              `<div style="text-align:center;padding:6px 8px;background:var(--bg);border-radius:var(--radius-sm);min-width:54px">
+                <div style="font-size:11px;font-weight:600;color:var(--text)">${z}</div>
+                <div style="font-size:13px;font-weight:600;font-family:var(--mono);color:${b<70?'var(--amber-500)':'var(--green-600)'}">${b}%</div>
+              </div>`
+            ).join(''));
+          </script>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── Field data ────────────────────────────────────────────────
+const ZONES = [
+  {id:'A1',crop:'Tomato',cls:'fz-h',ndvi:.82,moisture:64},
+  {id:'A2',crop:'Tomato',cls:'fz-h',ndvi:.80,moisture:63},
+  {id:'A3',crop:'Tomato',cls:'fz-h',ndvi:.79,moisture:65},
+  {id:'A4',crop:'Pepper',cls:'fz-s',ndvi:.61,moisture:58,note:'Low nitrogen 42ppm'},
+  {id:'A5',crop:'Pepper',cls:'fz-h',ndvi:.74,moisture:62},
+  {id:'A6',crop:'Pepper',cls:'fz-i',ndvi:.70,moisture:71},
+  {id:'B1',crop:'Spinach',cls:'fz-h',ndvi:.83,moisture:60},
+  {id:'B2',crop:'Spinach',cls:'fz-h',ndvi:.81,moisture:61},
+  {id:'B3',crop:'Spinach',cls:'fz-a',ndvi:.44,moisture:55,note:'⚠ Blight detected'},
+  {id:'B4',crop:'Spinach',cls:'fz-a',ndvi:.42,moisture:54,note:'⚠ Blight detected'},
+  {id:'B5',crop:'Spinach',cls:'fz-h',ndvi:.80,moisture:60},
+  {id:'B6',crop:'Lettuce',cls:'fz-h',ndvi:.77,moisture:59},
+  {id:'C1',crop:'Lettuce',cls:'fz-i',ndvi:.73,moisture:70},
+  {id:'C2',crop:'Lettuce',cls:'fz-h',ndvi:.78,moisture:64},
+  {id:'C3',crop:'Carrot', cls:'fz-h',ndvi:.76,moisture:63},
+  {id:'C4',crop:'Carrot', cls:'fz-h',ndvi:.77,moisture:62},
+  {id:'C5',crop:'Carrot', cls:'fz-s',ndvi:.58,moisture:39,note:'Drought stress · 39%'},
+  {id:'C6',crop:'Carrot', cls:'fz-h',ndvi:.75,moisture:64},
+  {id:'D1',crop:'Cover',  cls:'fz-h',ndvi:.71,moisture:60},
+  {id:'D2',crop:'Cover',  cls:'fz-h',ndvi:.72,moisture:61},
+  {id:'D3',crop:'Beans',  cls:'fz-h',ndvi:.80,moisture:65},
+  {id:'D4',crop:'Beans',  cls:'fz-h',ndvi:.81,moisture:66},
+  {id:'D5',crop:'Beans',  cls:'fz-h',ndvi:.79,moisture:64},
+  {id:'D6',crop:'Empty',  cls:'fz-e',ndvi:0,  moisture:41,note:'pH 5.8 · ready to plant'},
+];
+
+function buildMap(id) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  c.innerHTML = '';
+  ZONES.forEach(z => {
+    const el = document.createElement('div');
+    el.className = 'fzone ' + z.cls;
+    el.innerHTML = `<span>${z.id}</span><span class="crop-label">${z.crop}</span>`;
+    el.addEventListener('mouseenter', e => showTooltip(e, z));
+    el.addEventListener('mousemove', e => moveTooltip(e));
+    el.addEventListener('mouseleave', hideTooltip);
+    c.appendChild(el);
+  });
+}
+buildMap('dash-map');
+buildMap('full-map');
+
+const tooltip = document.getElementById('tooltip');
+function showTooltip(e, z) {
+  tooltip.innerHTML = `<strong>${z.id} — ${z.crop}</strong><br>NDVI: ${z.ndvi > 0 ? z.ndvi.toFixed(2) : 'N/A'}<br>Moisture: ${z.moisture}%${z.note ? '<br>' + z.note : ''}`;
+  tooltip.style.display = 'block';
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  tooltip.style.left = (e.clientX + 14) + 'px';
+  tooltip.style.top  = (e.clientY - 10) + 'px';
+}
+function hideTooltip() { tooltip.style.display = 'none'; }
+
+// ── Navigation ───────────────────────────────────────────────
+function nav(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el && el.classList) el.classList.add('active');
+}
+
+// ── Dispatch Modal ───────────────────────────────────────────
+const MODAL_CONFIGS = {
+  irrigate: (zone) => ({
+    title: `💧 Irrigate ${zone ? 'Zone ' + zone : 'Field'}`,
+    sub: 'Configure irrigation dispatch via drip system or spray drone',
+    body: `
+      <div class="modal-field"><label class="modal-label">Irrigation method</label>
+        <select class="modal-select"><option>Drip system (ground)</option><option>Spray drone</option><option>Both</option></select></div>
+      <div class="modal-field"><label class="modal-label">Duration</label>
+        <select class="modal-select"><option>15 min</option><option selected>30 min</option><option>45 min</option><option>60 min</option></select></div>
+      <div class="modal-field"><label class="modal-label">Target moisture %</label>
+        <input class="modal-input" type="number" value="62" min="40" max="80"/></div>`,
+    confirm: `✓ Irrigation dispatched to Zone ${zone}. Drip system starting in ~2 min. Target: 62% moisture.`
+  }),
+  'irrigate-schedule': () => ({
+    title: '📅 Schedule irrigation',
+    sub: 'Set a recurring irrigation schedule',
+    body: `<div class="modal-field"><label class="modal-label">Zone</label><select class="modal-select">
+      ${['A','B','C','D'].map(z=>`<option>Zone ${z}</option>`).join('')}</select></div>
+      <div class="modal-field"><label class="modal-label">Time</label><input class="modal-input" type="time" value="06:00"/></div>
+      <div class="modal-field"><label class="modal-label">Frequency</label><select class="modal-select"><option>Daily</option><option>Every 2 days</option><option>Twice weekly</option></select></div>`,
+    confirm: '✓ Irrigation schedule saved. First run tomorrow at 06:00.'
+  }),
+  npk: (zone) => ({
+    title: `🌱 Fertilizer application — Zone ${zone}`,
+    sub: 'Dispatch spray drone with NPK fertilizer mix',
+    body: `<div class="modal-field"><label class="modal-label">Fertilizer type</label>
+      <select class="modal-select"><option selected>Foliar nitrogen (N boost)</option><option>Balanced NPK (20-10-10)</option><option>Phosphorus boost</option><option>Custom mix</option></select></div>
+      <div class="modal-field"><label class="modal-label">Volume (litres)</label>
+        <input class="modal-input" type="number" value="20" min="5" max="100"/></div>
+      <div class="modal-field"><label class="modal-label">Target drone</label>
+        <select class="modal-select"><option>UAV-1 (78% battery — available after current scan)</option></select></div>`,
+    confirm: `✓ UAV-1 dispatched (spray mode) for foliar N application to Zone ${zone}. ETA 8 min.`
+  }),
+  lime: (zone) => ({
+    title: `⬆ Apply lime — Zone ${zone} (raise pH)`,
+    sub: 'Current pH 5.8 · Target: 6.5–7.0',
+    body: `<div class="modal-field"><label class="modal-label">Lime rate</label>
+        <select class="modal-select"><option>Light (1 t/ha)</option><option selected>Standard (2 t/ha)</option><option>Heavy (3 t/ha)</option></select></div>
+      <div class="modal-field"><label class="modal-label">Application method</label>
+        <select class="modal-select"><option>Ground spreader (MPAR)</option><option>Manual broadcast</option></select></div>`,
+    confirm: `✓ MPAR-1 (spray attachment) will apply lime in Zone ${zone}. Estimated pH correction: +0.8 units over 2 weeks.`
+  }),
+  sulfur: () => ({
+    title: '⬇ Apply sulfur (lower pH)',
+    sub: 'For zones where pH > 7.5',
+    body: `<div class="modal-field"><label class="modal-label">Zone</label><input class="modal-input" type="text" placeholder="e.g. A3"/></div>
+      <div class="modal-field"><label class="modal-label">Sulfur rate</label>
+        <select class="modal-select"><option>Light (200 kg/ha)</option><option>Standard (400 kg/ha)</option></select></div>`,
+    confirm: '✓ Sulfur application scheduled. pH correction expected over 3–4 weeks.'
+  }),
+  pesticide: (zone) => ({
+    title: `🐛 Pesticide — Zone ${zone}`,
+    sub: 'High pest trap count detected · 48 catches/24h',
+    body: `<div class="modal-field"><label class="modal-label">Pesticide type</label>
+        <select class="modal-select"><option>Neem oil (organic)</option><option selected>Imidacloprid (systemic)</option><option>Pyrethrin (contact)</option></select></div>
+      <div class="modal-field"><label class="modal-label">Concentration</label>
+        <select class="modal-select"><option>Standard (0.5 g/L)</option><option>High (1.0 g/L)</option></select></div>`,
+    confirm: `✓ UAV-1 dispatched (spray mode) to Zones ${zone}. Will redirect after current scan.`
+  }),
+  fungicide: () => ({
+    title: '🍄 Fungicide application',
+    sub: 'Blight/fungal treatment',
+    body: `<div class="modal-field"><label class="modal-label">Zone</label><input class="modal-input" value="B3-B4"/></div>
+      <div class="modal-field"><label class="modal-label">Product</label>
+        <select class="modal-select"><option selected>Mancozeb</option><option>Chlorothalonil</option><option>Copper hydroxide</option></select></div>`,
+    confirm: '✓ Fungicide application queued.'
+  }),
+  herbicide: () => ({
+    title: '🌿 Herbicide application',
+    sub: 'Weed control spray',
+    body: `<div class="modal-field"><label class="modal-label">Zone</label><input class="modal-input" placeholder="Zone e.g. D1"/></div>
+      <div class="modal-field"><label class="modal-label">Product</label>
+        <select class="modal-select"><option>Glyphosate (non-selective)</option><option selected>Pendimethalin (pre-emergent)</option></select></div>`,
+    confirm: '✓ Herbicide application queued. Note: avoid application before Wednesday rain.'
+  }),
+  seed: (zone) => ({
+    title: `🌾 Plant Zone ${zone}`,
+    sub: 'Select crop and configure seeder robot',
+    body: `<div class="modal-field"><label class="modal-label">Crop to plant</label>
+        <select class="modal-select"><option>Green beans</option><option>Soybeans (nitrogen-fixing)</option><option>Cover crop (clover)</option><option>Maize</option><option>Radish (fast)</option><option>Kale / Brassica</option></select></div>
+      <div class="modal-field"><label class="modal-label">Seed spacing</label>
+        <select class="modal-select"><option>15 cm (dense)</option><option selected>25 cm (standard)</option><option>40 cm (wide)</option></select></div>
+      <div class="modal-field"><label class="modal-label">Seeder robot</label>
+        <select class="modal-select"><option>MPAR-1 (seeder head — ready after harvest)</option></select></div>`,
+    confirm: `✓ MPAR-1 (seeder head) dispatched to plant Zone ${zone}. Estimated completion: 3 hours.`
+  }),
+  aerate: (zone) => ({
+    title: `🌍 Aerate Zone ${zone}`,
+    sub: 'Relieve soil compaction (2.1 MPa detected)',
+    body: `<div class="modal-field"><label class="modal-label">Aeration depth</label>
+        <select class="modal-select"><option>Shallow (10 cm)</option><option selected>Standard (20 cm)</option><option>Deep (30 cm)</option></select></div>`,
+    confirm: `✓ MPAR-1 will aerate Zone ${zone} after current harvest task. ETA: ~2h 30m.`
+  }),
+  'survey-pest': () => ({
+    title: '🔍 Pest scouting flight',
+    sub: 'Dispatch survey drone to confirm pest type before treatment',
+    body: `<div class="modal-field"><label class="modal-label">Zones to scout</label>
+        <input class="modal-input" value="B3, B4"/></div>
+      <div class="modal-field"><label class="modal-label">Scan type</label>
+        <select class="modal-select"><option selected>Thermal + RGB (pest detection)</option><option>RGB only</option></select></div>`,
+    confirm: '✓ UAV-1 will scout pest zones after current scan completes (~15 min). Results in ~30 min.'
+  }),
+  'custom-spray': () => ({
+    title: '⚙ Custom dispatch',
+    sub: 'Manually configure a drone or robot task',
+    body: `<div class="modal-field"><label class="modal-label">Action type</label>
+        <select class="modal-select"><option>Spray</option><option>Survey / scan</option><option>Seed</option><option>Aerate</option><option>Irrigate</option></select></div>
+      <div class="modal-field"><label class="modal-label">Target zone(s)</label>
+        <input class="modal-input" placeholder="e.g. A1, B2-B4"/></div>
+      <div class="modal-field"><label class="modal-label">Notes</label>
+        <input class="modal-input" placeholder="Any special instructions"/></div>`,
+    confirm: '✓ Custom task queued and assigned to available fleet.'
+  }),
+  'npk-schedule': () => ({
+    title: '📅 Schedule fertilizer program',
+    sub: 'Set up recurring NPK applications',
+    body: `<div class="modal-field"><label class="modal-label">Zone</label><select class="modal-select">
+      ${['A','B','C','D'].map(z=>`<option>Zone ${z}</option>`).join('')}</select></div>
+      <div class="modal-field"><label class="modal-label">Fertilizer</label><select class="modal-select"><option>Balanced NPK</option><option>N-heavy (leafy)</option><option>K-heavy (fruit)</option></select></div>
+      <div class="modal-field"><label class="modal-label">Interval</label><select class="modal-select"><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option></select></div>`,
+    confirm: '✓ Fertilizer program saved. First application tomorrow morning.'
+  }),
+};
+
+let currentModalAction = '';
+function openModal(action, zone) {
+  const config = MODAL_CONFIGS[action] ? MODAL_CONFIGS[action](zone) : null;
+  if (!config) return;
+  currentModalAction = action;
+  document.getElementById('modal-title').textContent = config.title;
+  document.getElementById('modal-sub').textContent = config.sub;
+  document.getElementById('modal-body').innerHTML = config.body;
+  document.getElementById('modal-confirm').style.display = 'none';
+  document.getElementById('modal-confirm').textContent = config.confirm || '';
+  document.getElementById('modal-confirm-btn').style.display = '';
+  document.getElementById('dispatch-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('dispatch-modal').classList.remove('open'); }
+function confirmDispatch() {
+  const msg = document.getElementById('modal-confirm');
+  msg.style.display = 'block';
+  document.getElementById('modal-confirm-btn').style.display = 'none';
+  setTimeout(closeModal, 2200);
+}
+document.getElementById('dispatch-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── Crop Planner AI ──────────────────────────────────────────
+const PLANNER_CONTEXT = `You are AgroNet AI, an expert agronomist for a farm in the Kathmandu Valley, Nepal.
+
+Current farm state:
+- Zone D6: empty (0.4 ha), pH 5.8 (slightly acidic), moisture 41%, soil temp 19°C
+- Zone A: Tomatoes/Peppers — harvest in ~18 days
+- Zone B3–B4: Recovering from fungal blight (spinach)
+- Zone C5: Drought stress (carrots)
+- Season: Monsoon (June–September) — rain forecast Wed–Thu (8–12 mm)
+- Altitude: ~1,400m, subtropical highland climate
+
+Give 3 specific crop recommendations, ranked by the farmer's priority. For each:
+- Crop name
+- Why it fits (soil, climate, rotation benefits)
+- Expected yield (kg/ha)
+- Time to harvest (days)
+- One key risk and how to mitigate it
+
+Format as JSON array: [{name, reason, yield_kg_ha, days_to_harvest, risk, mitigation}]
+Return ONLY valid JSON, no markdown, no preamble.`;
+
+async function getPlannerRecs() {
+  const zone = document.getElementById('planner-zone').value;
+  const season = document.getElementById('planner-season').value;
+  const priority = document.getElementById('planner-priority').value;
+  document.getElementById('planner-zone-label').textContent = zone;
+
+  const results = document.getElementById('planner-results');
+  results.innerHTML = `<div class="planner-loading"><i class="ti ti-loader-2"></i>Analyzing soil data and climate for Zone ${zone}…</div>`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: PLANNER_CONTEXT,
+        messages: [{ role: 'user', content: `Zone: ${zone}. Season: ${season}. Priority: ${priority}. Give 3 crop recommendations as JSON.` }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '[]';
+    let recs;
+    try {
+      recs = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    } catch(e) {
+      recs = [];
+    }
+
+    if (!recs.length) {
+      results.innerHTML = '<div style="color:var(--red-500);font-size:13px;padding:16px">Could not parse recommendations. Try again.</div>';
+      return;
+    }
+
+    const medals = ['🥇','🥈','🥉'];
+    results.innerHTML = recs.map((r, i) => `
+      <div class="crop-recommendation">
+        <div class="crop-rec-name">${medals[i] || ''} ${r.name}</div>
+        <div style="display:flex;gap:12px;margin-top:6px;font-size:11.5px;color:var(--text-2)">
+          <span>🌾 ${r.yield_kg_ha} kg/ha</span>
+          <span>📅 ${r.days_to_harvest} days</span>
+        </div>
+        <div class="crop-rec-detail">${r.reason}</div>
+        <div class="crop-rec-reason">⚠ Risk: ${r.risk} — ${r.mitigation}</div>
+        <div style="margin-top:8px">
+          <button class="btn btn-primary btn-sm" onclick="openModal('seed','${zone}')">Plant this crop →</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    results.innerHTML = '<div style="color:var(--red-500);font-size:13px;padding:16px">Could not reach AI service.</div>';
+  }
+}
+
+// ── AI Chat ──────────────────────────────────────────────────
+const FARM_CONTEXT = `You are AgroNet AI, an expert farming advisor with access to live farm data.
+Current farm state:
+- Zones B3, B4: fungal blight detected, UAV-1 dispatched with fungicide (spray mode)
+- Zone A4: nitrogen 42 ppm (low, threshold 50 ppm), foliar feed scheduled 11:00
+- Zone C5: soil moisture 39% (drought stress, threshold 45%)
+- Zone D6: empty, pH 5.8 (slightly acidic), ready to plant — 0.4 ha
+- Tomatoes (A1-A3): healthy, NDVI 0.80, harvest in ~18 days
+- Peppers (A4-A6): A4 stressed; A5-A6 healthy
+- Spinach (B1-B5): B3-B4 under blight treatment; B1,B2,B5 healthy
+- Carrots (C3-C6): C5 drought stressed; others healthy
+- Beans (D3-D5): healthy
+- Weather: rain forecast Wednesday–Thursday (8–12mm)
+- Soil pH: field avg 6.8 (good), Zone D6 is 5.8 (acidic — needs lime)
+- Soil compaction: Zone C3 at 2.1 MPa (borderline)
+- Pest traps: B3-B4 high (48 catches/24h — suspected aphids)
+- 1 drone active: UAV-1 (multi-role; current mode: NDVI scan Zones C-D; next: fungicide spray B3-B4, then pollination A1-A3)
+- 1 ground robot active: MPAR-1 (current tool: harvester head, tomatoes Row 7/18; next: weeder head Zone C, then seeder head Zone D6 at 16:00)
+- Wind: 8 km/h SSW — safe for spraying
+- Air temp: 27°C, humidity 71%, CO₂: 412 ppm (normal)
+
+Give specific, actionable advice using this data. Be concise — farmers are busy. Use metric units. If the farmer asks what to do, give clear next steps.`;
+
+async function callAI(userMsg) {
+  const box = document.getElementById('chat-box');
+  const userBubble = document.createElement('div');
+  userBubble.className = 'chat-msg';
+  userBubble.innerHTML = `<div class="chat-meta" style="text-align:right">You · now</div><div class="chat-bubble user">${userMsg}</div>`;
+  box.appendChild(userBubble);
+
+  const typing = document.createElement('div');
+  typing.className = 'chat-msg';
+  typing.innerHTML = `<div class="chat-meta">AgroNet AI · now</div><div class="chat-bubble" style="color:var(--text-3);font-style:italic">Thinking…</div>`;
+  box.appendChild(typing);
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: FARM_CONTEXT,
+        messages: [{ role: 'user', content: userMsg }]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Sorry, I could not get a response.';
+    typing.querySelector('.chat-bubble').style.fontStyle = 'normal';
+    typing.querySelector('.chat-bubble').style.color = '';
+    typing.querySelector('.chat-bubble').textContent = reply;
+  } catch(e) {
+    typing.querySelector('.chat-bubble').textContent = 'Could not reach AI service. Check your connection.';
+  }
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendChat() {
+  const input = document.getElementById('ai-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  callAI(msg);
+}
+
+function quickQ(q) {
+  nav('ai', document.querySelectorAll('.nav-item')[9]);
+  callAI(q);
+}
+
+// ── Irrigation page ──────────────────────────────────────────
+function runNow(btn, zone) {
+  btn.textContent = '⏳ Running…';
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = '✓ Done'; btn.style.background='var(--green-100)'; btn.style.color='var(--green-600)'; }, 1800);
+}
+function editSchedule(btn, zone) {
+  const time = prompt(`Edit irrigation schedule for Zone ${zone}\nCurrent: Mon, Thu · 06:00\n\nEnter new time (e.g. "Mon,Wed,Fri · 06:30"):`);
+  if (time) { btn.closest('div').previousElementSibling.previousElementSibling.textContent = time; }
+}
+function scheduleZoneD(btn) {
+  btn.textContent = '✓ Scheduled Mon 06:00';
+  btn.disabled = true;
+  btn.className = 'btn btn-ghost btn-sm';
+  btn.closest('div').querySelector('.pill').className = 'pill pill-green';
+  btn.closest('div').querySelector('.pill').textContent = 'Scheduled';
+}
+function toggleRule(cb) {
+  cb.nextElementSibling.textContent = cb.checked ? 'Enabled' : 'Disabled';
+}
+function addIrrigationRule() {
+  const rule = prompt('Describe the new automation rule:');
+  if (!rule) return;
+  const el = document.createElement('div');
+  el.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px;background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius-sm)';
+  el.innerHTML = `<i class="ti ti-plus" style="color:var(--green-500);font-size:18px"></i><div style="flex:1"><div style="font-size:13px;font-weight:500">${rule}</div><div style="font-size:12px;color:var(--text-3)">New rule — active immediately</div></div><span class="pill pill-green">Enabled</span>`;
+  document.getElementById('irr-rules').appendChild(el);
+}
+
+// ── Pest & Disease page ───────────────────────────────────────
+function runScan() {
+  const btn = event.target.closest('button');
+  btn.innerHTML = '<i class="ti ti-loader"></i> Launching UAV-1 survey mode…';
+  btn.disabled = true;
+  setTimeout(() => { btn.innerHTML = '<i class="ti ti-check"></i> Scan complete'; btn.style.background='var(--green-100)'; btn.style.color='var(--green-600)'; }, 3000);
+}
+function dispatchPestSpray(btn, zone, payload) {
+  btn.textContent = `✓ UAV-1 dispatched → ${zone}`;
+  btn.disabled = true;
+  btn.nextElementSibling.textContent = 'Monitoring';
+}
+function snooze(btn) {
+  btn.closest('.card').style.opacity = '0.5';
+  btn.textContent = '⏰ Snoozed 48h';
+  btn.disabled = true;
+}
+
+// ── Harvest page ──────────────────────────────────────────────
+(function buildYieldChart() {
+  const data = [{d:'15 Jun',kg:210},{d:'16 Jun',kg:245},{d:'17 Jun',kg:188},{d:'18 Jun',kg:302},{d:'19 Jun',kg:267},{d:'20 Jun',kg:241},{d:'21 Jun',kg:279}];
+  const max = Math.max(...data.map(x=>x.kg));
+  const chart = document.getElementById('yield-chart');
+  const labels = document.getElementById('yield-labels');
+  if (!chart) return;
+  data.forEach(({d,kg}) => {
+    const h = Math.round((kg/max)*90);
+    const col = document.createElement('div');
+    col.style.cssText = `flex:1;display:flex;flex-direction:column;align-items:center;gap:4px`;
+    col.innerHTML = `<div style="font-size:10.5px;color:var(--text-3);font-family:var(--mono)">${kg}</div><div style="width:100%;height:${h}px;background:var(--green-500);border-radius:4px 4px 0 0;min-height:4px"></div>`;
+    chart.appendChild(col);
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'flex:1;text-align:center;font-size:10.5px;color:var(--text-3)';
+    lbl.textContent = d.split(' ')[0];
+    labels.appendChild(lbl);
+  });
+})();
+function scheduleHarvest(btn, crop) {
+  btn.textContent = '✓ Scheduled';
+  btn.disabled = true;
+  btn.className = 'btn btn-green btn-sm';
+}
+function logManualHarvest() {
+  const kg = prompt('Enter harvested weight (kg):');
+  const crop = prompt('Crop name:');
+  if (kg && crop) alert(`Logged: ${kg} kg of ${crop} — added to today's harvest log.`);
+}
+
+// ── Equipment page ────────────────────────────────────────────
+function bookService(btn, drone) {
+  const date = prompt(`Book service for ${drone}\nEnter preferred date (e.g. "24 Jun 2025"):`);
+  if (date) { btn.textContent = `✓ Booked ${date}`; btn.disabled = true; btn.previousElementSibling.className = 'pill pill-blue'; btn.previousElementSibling.textContent = 'Booked'; }
+}
+
+// ── Task approval ─────────────────────────────────────────────
+function approveTask(btn) {
+  const row = btn.closest('.task-row');
+  row.querySelector('div').remove();
+  row.querySelector('.task-text').textContent = 'Zone C irrigation rescheduled to Monday — approved';
+  const check = row.querySelector('.task-check');
+  check.classList.add('active');
+  check.innerHTML = '<i class="ti ti-loader" style="font-size:11px"></i>';
+  const pill = document.createElement('span');
+  pill.className = 'pill pill-amber';
+  pill.textContent = 'Scheduled';
+  row.appendChild(pill);
+}
+</script>
+</body>
+</html>
