@@ -1607,17 +1607,13 @@ async function getPlannerRecs() {
   results.innerHTML = `<div class="planner-loading"><i class="ti ti-loader-2"></i>Analyzing soil data and climate for Zone ${zone}…</div>`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+   const res = await fetch('https://agronet-backend-l22vtvcrva-uc.a.run.app/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: PLANNER_CONTEXT,
-        messages: [{ role: 'user', content: `Zone: ${zone}. Season: ${season}. Priority: ${priority}. Give 3 crop recommendations as JSON.` }]
-      })
+      body: JSON.stringify({ message: userMsg })
     });
     const data = await res.json();
+    const reply = data.reply;
     const raw = data.content?.[0]?.text || '[]';
     let recs;
     try {
@@ -1818,6 +1814,14 @@ function approveTask(btn) {
   pill.textContent = 'Scheduled';
   row.appendChild(pill);
 }
+const ws = new WebSocket('wss://agronet-backend-l22vtvcrva-uc.a.run.app/ws');
+ws.onmessage = (event) => {
+  const msg = JSON.parse(event.data);
+  if (msg.type === 'TELEMETRY') {
+    console.log('Battery:', msg.payload.drone.battery_pct);
+  }
+};
 </script>
+
 </body>
 </html>
