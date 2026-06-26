@@ -409,6 +409,8 @@ body {
     <div class="nav-item" onclick="nav('planner',this)"><i class="ti ti-calendar-plus"></i> Crop Planner</div>
     <div class="nav-item" onclick="nav('ai',this)"><i class="ti ti-brain"></i> AI Advisor</div>
     <div class="nav-item" onclick="nav('tasks',this)"><i class="ti ti-checklist"></i> Tasks</div>
+    <div class="nav-group">Help</div>
+    <div class="nav-item" onclick="nav('learn',this)"><i class="ti ti-school"></i> Learn (for kids!)</div>
   </nav>
 
   <!-- MAIN CONTENT -->
@@ -424,7 +426,7 @@ body {
       <div class="grid-4">
         <div class="metric"><div class="metric-label"><i class="ti ti-plant"></i> Crop health</div><div class="metric-val" style="color:var(--green-600)">87%</div><div class="metric-sub metric-up">↑ 3% from last week</div></div>
         <div class="metric"><div class="metric-label"><i class="ti ti-droplet"></i> Avg soil moisture</div><div class="metric-val">62%</div><div class="metric-sub">Optimal: 55–70%</div></div>
-        <div class="metric"><div class="metric-label"><i class="ti ti-drone"></i> Drone</div><div class="metric-val" style="color:var(--green-600)">1</div><div class="metric-sub">UAV-1 · Multi-role · Flying</div></div>
+        <div class="metric"><div class="metric-label"><i class="ti ti-drone"></i> Drones</div><div class="metric-val" style="color:var(--green-600)">3</div><div class="metric-sub">UAV-1 flying · UAV-2 charging · UAV-3 standby</div></div>
         <div class="metric"><div class="metric-label"><i class="ti ti-trending-up"></i> Est. yield</div><div class="metric-val">2.4t</div><div class="metric-sub">Harvest in ~18 days</div></div>
       </div>
 
@@ -770,32 +772,34 @@ body {
     <!-- ── DRONES ── -->
     <div class="page" id="page-drones">
       <div class="page-header">
-        <div><div class="page-title">Drone</div><div class="page-sub">UAV-1 · Multi-role agricultural drone</div></div>
+        <div><div class="page-title">Drones</div><div class="page-sub">UAV fleet · 3 multi-role agricultural drones</div></div>
         <button class="btn btn-primary" onclick="openModal('custom-spray','')"><i class="ti ti-plus"></i> Dispatch drone</button>
       </div>
       <div class="grid-4">
-        <div class="metric"><div class="metric-label">Status</div><div class="metric-val" style="color:var(--green-600)">Flying</div></div>
-        <div class="metric"><div class="metric-label">Battery</div><div class="metric-val">78%</div></div>
-        <div class="metric"><div class="metric-label">Flights today</div><div class="metric-val">11</div></div>
-        <div class="metric"><div class="metric-label">Area covered</div><div class="metric-val">3.2 ha</div></div>
+        <div class="metric"><div class="metric-label">Fleet size</div><div class="metric-val" style="color:var(--green-600)">3</div></div>
+        <div class="metric"><div class="metric-label">In flight</div><div class="metric-val">1</div><div class="metric-sub">UAV-1 active</div></div>
+        <div class="metric"><div class="metric-label">Flights today</div><div class="metric-val">14</div></div>
+        <div class="metric"><div class="metric-label">Area covered</div><div class="metric-val">4.8 ha</div></div>
       </div>
+
+      <!-- UAV-1 -->
       <div class="card">
-        <div class="card-head"><span class="card-title">UAV-1 · Multi-role drone</span><span class="pill pill-green"><span class="dot-live"></span> Live</span></div>
+        <div class="card-head"><span class="card-title">UAV-1 · Scout &amp; Spray</span><span class="pill pill-green"><span class="dot-live"></span> Flying</span></div>
         <div class="drone-row">
           <div class="drone-avatar" style="background:var(--green-100)"><i class="ti ti-drone" style="color:var(--green-600)"></i></div>
           <div style="flex:1">
             <div class="drone-name">UAV-1</div>
-            <div class="drone-task">Current mode: NDVI multispectral scan · Zones C–D</div>
+            <div class="drone-task drone-task-text">Current mode: NDVI multispectral scan · Zones C–D</div>
             <div style="font-size:11.5px;color:var(--text-3);margin-top:4px">Swappable payload — survey · spray · pollination</div>
           </div>
-          <div class="bat-wrap"><div class="bat-label">78%</div><div class="bat-bar"><div class="bat-fill" style="width:78%;background:var(--green-500)"></div></div></div>
-          <span class="pill pill-green">Flying</span>
+          <div class="bat-wrap"><div class="bat-label bat-label">78%</div><div class="bat-bar"><div class="bat-fill" style="width:78%;background:var(--green-500)"></div></div></div>
+          <span class="pill pill-green drone-status-pill">Flying</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
-          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Survey mode</div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:2px solid var(--green-400)">
+            <div style="font-size:11px;color:var(--green-600);font-weight:600;text-transform:uppercase;margin-bottom:4px">✓ Survey mode</div>
             <div style="font-size:12.5px;color:var(--text)">Multispectral · Thermal · RGB</div>
-            <div style="font-size:11.5px;color:var(--green-600);margin-top:2px">✓ Active now</div>
+            <div style="font-size:11.5px;color:var(--green-600);margin-top:2px">Active now</div>
           </div>
           <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
             <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Spray mode</div>
@@ -813,22 +817,96 @@ body {
           <button class="btn btn-ghost btn-sm" onclick="bookService(this,'UAV-1')"><i class="ti ti-tool"></i> Book service</button>
         </div>
       </div>
+
+      <!-- UAV-2 -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">UAV-2 · Heavy Sprayer</span><span class="pill pill-amber">Charging</span></div>
+        <div class="drone-row">
+          <div class="drone-avatar" style="background:var(--amber-100)"><i class="ti ti-drone" style="color:var(--amber-500)"></i></div>
+          <div style="flex:1">
+            <div class="drone-name">UAV-2</div>
+            <div class="drone-task">Last flight: Fungicide — Zones B3–B4 (completed 08:52)</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:4px">High-capacity 25 L tank · wide-area coverage</div>
+          </div>
+          <div class="bat-wrap"><div class="bat-label">43%</div><div class="bat-bar"><div class="bat-fill" style="width:43%;background:var(--amber-500)"></div></div></div>
+          <span class="pill pill-amber">Charging</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Survey mode</div>
+            <div style="font-size:12.5px;color:var(--text)">RGB camera · terrain mapping</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Available after charge</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:2px solid var(--amber-500)">
+            <div style="font-size:11px;color:var(--amber-600);font-weight:600;text-transform:uppercase;margin-bottom:4px">✓ Spray mode</div>
+            <div style="font-size:12.5px;color:var(--text)">25 L tank · wide-area nozzles</div>
+            <div style="font-size:11.5px;color:var(--amber-600);margin-top:2px">Primary use</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Seed drop mode</div>
+            <div style="font-size:12.5px;color:var(--text)">Precision aerial seeding</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Available</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('custom-spray','')"><i class="ti ti-drone"></i> Dispatch UAV-2</button>
+          <button class="btn btn-ghost btn-sm" onclick="bookService(this,'UAV-2')"><i class="ti ti-tool"></i> Book service</button>
+        </div>
+      </div>
+
+      <!-- UAV-3 -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">UAV-3 · Pollinator</span><span class="pill pill-gray">Standby</span></div>
+        <div class="drone-row">
+          <div class="drone-avatar" style="background:var(--purple-100)"><i class="ti ti-drone" style="color:var(--purple-500)"></i></div>
+          <div style="flex:1">
+            <div class="drone-name">UAV-3</div>
+            <div class="drone-task">Scheduled: Zone A1–A3 pollination tomorrow 06:30</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:4px">Specialised electrostatic pollen dispersal payload</div>
+          </div>
+          <div class="bat-wrap"><div class="bat-label">100%</div><div class="bat-bar"><div class="bat-fill" style="width:100%;background:var(--green-500)"></div></div></div>
+          <span class="pill pill-gray">Standby</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Survey mode</div>
+            <div style="font-size:12.5px;color:var(--text)">Bloom detection · floral mapping</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Optional add-on</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Light spray mode</div>
+            <div style="font-size:12.5px;color:var(--text)">8 L tank · foliar microspray</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Secondary</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:2px solid var(--purple-500)">
+            <div style="font-size:11px;color:var(--purple-500);font-weight:600;text-transform:uppercase;margin-bottom:4px">✓ Pollination mode</div>
+            <div style="font-size:12.5px;color:var(--text)">Vibration + electrostatic</div>
+            <div style="font-size:11.5px;color:var(--purple-500);margin-top:2px">Primary · Queued tomorrow</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('custom-spray','')"><i class="ti ti-drone"></i> Dispatch UAV-3</button>
+          <button class="btn btn-ghost btn-sm" onclick="bookService(this,'UAV-3')"><i class="ti ti-tool"></i> Book service</button>
+        </div>
+      </div>
     </div>
 
     <!-- ── ROBOTS ── -->
     <div class="page" id="page-robots">
       <div class="page-header">
-        <div><div class="page-title">Ground robot</div><div class="page-sub">MPAR-1 · Multi-purpose · Swappable tool head</div></div>
-        <button class="btn btn-primary"><i class="ti ti-plus"></i> Assign task</button>
+        <div><div class="page-title">Ground robots</div><div class="page-sub">MPAR fleet · 3 multi-purpose ground robots</div></div>
+        <button class="btn btn-primary" onclick="openModal('aerate','')"><i class="ti ti-plus"></i> Assign task</button>
       </div>
       <div class="grid-4">
-        <div class="metric"><div class="metric-label">Status</div><div class="metric-val" style="color:var(--green-600)">Active</div></div>
-        <div class="metric"><div class="metric-label">Tasks done today</div><div class="metric-val">7</div></div>
-        <div class="metric"><div class="metric-label">Rows worked</div><div class="metric-val">42</div></div>
-        <div class="metric"><div class="metric-label">Water saved</div><div class="metric-val">18%</div></div>
+        <div class="metric"><div class="metric-label">Fleet size</div><div class="metric-val" style="color:var(--green-600)">3</div></div>
+        <div class="metric"><div class="metric-label">Tasks done today</div><div class="metric-val">12</div></div>
+        <div class="metric"><div class="metric-label">Rows worked</div><div class="metric-val">68</div></div>
+        <div class="metric"><div class="metric-label">Water saved</div><div class="metric-val">23%</div></div>
       </div>
+
+      <!-- MPAR-1 -->
       <div class="card">
-        <div class="card-head"><span class="card-title">MPAR-1 · Multi-purpose ground robot</span><span class="pill pill-green">Active</span></div>
+        <div class="card-head"><span class="card-title">MPAR-1 · Harvester</span><span class="pill pill-green">Active</span></div>
         <div class="robot-row">
           <div class="robot-avatar" style="background:var(--green-100)"><i class="ti ti-robot" style="color:var(--green-600)"></i></div>
           <div style="flex:1">
@@ -838,7 +916,7 @@ body {
             </div>
             <div class="drone-task" style="margin-bottom:4px">Current tool: Harvester head · Tomatoes · Row 7 of 18</div>
             <div class="prog-bar"><div class="prog-fill" style="width:39%"></div></div>
-            <div class="prog-meta"><span>39%</span><span>Est. 2h 14m remaining on harvest</span></div>
+            <div class="prog-meta"><span>39%</span><span>Est. 2h 14m remaining</span></div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
@@ -863,6 +941,83 @@ body {
           <button class="btn btn-ghost btn-sm" onclick="bookService(this,'MPAR-1')"><i class="ti ti-tool"></i> Book service</button>
         </div>
       </div>
+
+      <!-- MPAR-2 -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">MPAR-2 · Weeder &amp; Scout</span><span class="pill pill-amber">In transit</span></div>
+        <div class="robot-row">
+          <div class="robot-avatar" style="background:var(--amber-100)"><i class="ti ti-robot" style="color:var(--amber-500)"></i></div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span class="drone-name">MPAR-2</span>
+              <span class="pill pill-amber">Moving to zone</span>
+            </div>
+            <div class="drone-task" style="margin-bottom:4px">Current tool: Weeder head · Moving to Zone C · Row 1 of 22</div>
+            <div class="prog-bar"><div class="prog-fill" style="width:8%;background:var(--amber-500)"></div></div>
+            <div class="prog-meta"><span>8%</span><span>Starting mechanical weeding</span></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">🌾 Harvester head</div>
+            <div style="font-size:12px;color:var(--text)">Vision pick · 1,000/hr</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Available</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:2px solid var(--amber-500)">
+            <div style="font-size:11px;color:var(--amber-600);font-weight:600;text-transform:uppercase;margin-bottom:4px">🌿 Weeder head</div>
+            <div style="font-size:12px;color:var(--text)">Mechanical tine · Inter-row</div>
+            <div style="font-size:11.5px;color:var(--amber-600);margin-top:2px">✓ Active — Zone C</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">🔬 Soil probe</div>
+            <div style="font-size:12px;color:var(--text)">pH · moisture · N-P-K</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Queued: Zone D survey</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="openModal('aerate','')"><i class="ti ti-robot"></i> Assign task</button>
+          <button class="btn btn-ghost btn-sm" onclick="bookService(this,'MPAR-2')"><i class="ti ti-tool"></i> Book service</button>
+        </div>
+      </div>
+
+      <!-- MPAR-3 -->
+      <div class="card">
+        <div class="card-head"><span class="card-title">MPAR-3 · Irrigation Runner</span><span class="pill pill-blue">Active</span></div>
+        <div class="robot-row">
+          <div class="robot-avatar" style="background:var(--blue-100)"><i class="ti ti-robot" style="color:var(--blue-600)"></i></div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span class="drone-name">MPAR-3</span>
+              <span class="pill pill-blue"><span class="dot-live" style="background:var(--blue-500)"></span> Irrigating</span>
+            </div>
+            <div class="drone-task" style="margin-bottom:4px">Current tool: Micro-drip head · Zone A6 · 14 min remaining</div>
+            <div class="prog-bar"><div class="prog-fill" style="width:63%;background:var(--blue-500)"></div></div>
+            <div class="prog-meta"><span>63%</span><span>120 L dispensed · 72 L remaining</span></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:2px solid var(--blue-500)">
+            <div style="font-size:11px;color:var(--blue-600);font-weight:600;text-transform:uppercase;margin-bottom:4px">💧 Drip irrigator</div>
+            <div style="font-size:12px;color:var(--text)">192 L tank · precision micro-drip</div>
+            <div style="font-size:11.5px;color:var(--blue-600);margin-top:2px">✓ Active now</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">🌱 Seeder head</div>
+            <div style="font-size:12px;color:var(--text)">Precision metering · GPS row</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Available</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px">🧪 Fertigation</div>
+            <div style="font-size:12px;color:var(--text)">Liquid nutrient inject</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Queued: Zone A4 nitrogen</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="openModal('irrigate','C5')"><i class="ti ti-droplet"></i> Send to zone</button>
+          <button class="btn btn-ghost btn-sm" onclick="bookService(this,'MPAR-3')"><i class="ti ti-tool"></i> Book service</button>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-head"><span class="card-title">Today's harvest output</span><span class="pill pill-green">MPAR-1 active</span></div>
         <div style="display:flex;flex-direction:column;gap:6px">
@@ -1355,6 +1510,129 @@ body {
             ).join(''));
           </script>
         </div>
+      </div>
+    </div>
+
+    <!-- ── LEARN (FOR KIDS!) ── -->
+    <div class="page" id="page-learn">
+      <div class="page-header">
+        <div><div class="page-title">🌱 How does this farm work?</div><div class="page-sub">Learn all about Kisan's smart farm — explained simply!</div></div>
+      </div>
+
+      <!-- What is this? -->
+      <div class="card" style="border-left:4px solid var(--green-500)">
+        <div class="card-head"><span class="card-title">🏡 What is Kisan?</span></div>
+        <p style="font-size:14px;line-height:1.8;color:var(--text)">
+          Kisan is a <strong>smart farm</strong>! Imagine a regular farm with plants, soil, and sunshine — but with robots, flying drones, and a computer brain helping the farmer every single day. The farmer's name is <strong>Raj</strong>, and instead of doing everything by hand, he has machines that do the hard work while he watches from a screen. 🧑‍🌾
+        </p>
+      </div>
+
+      <!-- Drones -->
+      <div class="card" style="border-left:4px solid var(--green-400)">
+        <div class="card-head"><span class="card-title">🚁 What are the drones?</span><span class="pill pill-green">3 drones</span></div>
+        <p style="font-size:14px;line-height:1.8;color:var(--text);margin-bottom:12px">
+          Drones are like <strong>flying robots</strong>! They have propellers (spinning blades) that let them fly up in the air over the farm. Raj has <strong>3 drones</strong>, and each one has a special job:
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="background:var(--green-50);border:1px solid var(--green-100);border-radius:10px;padding:14px">
+            <div style="font-size:28px;margin-bottom:6px">🔭</div>
+            <div style="font-weight:600;font-size:13.5px;margin-bottom:6px">UAV-1 — The Scout</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7">UAV-1 flies over the whole farm and takes special photos. It can see if plants are sick, thirsty, or healthy — even things your eyes can't see! It's like giving the farm a health check-up from the sky. 📸</div>
+          </div>
+          <div style="background:#fff8ed;border:1px solid var(--amber-100);border-radius:10px;padding:14px">
+            <div style="font-size:28px;margin-bottom:6px">💦</div>
+            <div style="font-weight:600;font-size:13.5px;margin-bottom:6px">UAV-2 — The Sprayer</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7">UAV-2 carries a big tank of medicine for the plants! When plants get sick (like getting a cold), UAV-2 flies over and sprays the right medicine exactly where it's needed. It's like a flying doctor! 🏥</div>
+          </div>
+          <div style="background:var(--purple-100);border:1px solid #ddd6fe;border-radius:10px;padding:14px">
+            <div style="font-size:28px;margin-bottom:6px">🌸</div>
+            <div style="font-weight:600;font-size:13.5px;margin-bottom:6px">UAV-3 — The Pollinator</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7">You know how bees carry pollen between flowers to help make fruit? UAV-3 does that too! It flies gently between flowers and shakes tiny bits of pollen so more fruits can grow. It's a robot bee! 🐝</div>
+          </div>
+        </div>
+        <div style="background:var(--green-50);border-radius:8px;padding:12px;margin-top:12px;font-size:13px;color:var(--text-2)">
+          💡 <strong>Fun fact:</strong> UAV stands for "Unmanned Aerial Vehicle" — which just means a flying machine with no person inside. The word "unmanned" means no human is sitting in it. Raj controls them from his computer!
+        </div>
+      </div>
+
+      <!-- Robots -->
+      <div class="card" style="border-left:4px solid var(--blue-500)">
+        <div class="card-head"><span class="card-title">🤖 What are the ground robots?</span><span class="pill pill-blue">3 robots</span></div>
+        <p style="font-size:14px;line-height:1.8;color:var(--text);margin-bottom:12px">
+          Ground robots don't fly — they drive along the rows of plants on the ground! Raj has <strong>3 robots</strong>, each doing a different farm job:
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="background:var(--green-50);border:1px solid var(--green-100);border-radius:10px;padding:14px">
+            <div style="font-size:28px;margin-bottom:6px">🌾</div>
+            <div style="font-weight:600;font-size:13.5px;margin-bottom:6px">MPAR-1 — The Picker</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7">MPAR-1 drives slowly through the tomato rows and picks the ripe ones — without squishing them! It has a camera that can tell which tomatoes are red and ready. It's picking 1,000 tomatoes every hour! 😲</div>
+          </div>
+          <div style="background:#fff8ed;border:1px solid var(--amber-100);border-radius:10px;padding:14px">
+            <div style="font-size:28px;margin-bottom:6px">🌿</div>
+            <div style="font-weight:600;font-size:13.5px;margin-bottom:6px">MPAR-2 — The Weeder</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7">Weeds are bad plants that steal water and food from the good plants. MPAR-2 drives between the rows and removes them — no chemicals needed! It has metal fingers that gently pull out the weeds. 🙌</div>
+          </div>
+          <div style="background:var(--blue-100);border:1px solid #bfdbfe;border-radius:10px;padding:14px">
+            <div style="font-size:28px;margin-bottom:6px">💧</div>
+            <div style="font-weight:600;font-size:13.5px;margin-bottom:6px">MPAR-3 — The Waterer</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7">Plants need water to survive, just like you! MPAR-3 carries a big tank of water and drips just the right amount to each plant's roots. It doesn't waste a single drop — it's like giving each plant its own water bottle! 🍶</div>
+          </div>
+        </div>
+        <div style="background:var(--blue-100);border-radius:8px;padding:12px;margin-top:12px;font-size:13px;color:var(--text-2)">
+          💡 <strong>Fun fact:</strong> MPAR stands for "Multi-Purpose Agricultural Robot." They can swap their "heads" — like changing a LEGO piece — to do different jobs: harvesting, weeding, watering, or planting seeds!
+        </div>
+      </div>
+
+      <!-- Sensors -->
+      <div class="card" style="border-left:4px solid var(--amber-500)">
+        <div class="card-head"><span class="card-title">🌡️ What are sensors?</span></div>
+        <p style="font-size:14px;line-height:1.8;color:var(--text);margin-bottom:12px">
+          Sensors are tiny devices stuck in the soil or the air all around the farm. They measure things all day and night and send the numbers to Raj's screen. Here are the main ones:
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+          <div style="background:var(--bg);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:24px">💧</span>
+            <div><strong>Soil moisture</strong> — measures how wet the soil is. If it's too dry, the plants are thirsty and MPAR-3 goes to water them.</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:24px">🌡️</span>
+            <div><strong>Temperature</strong> — measures how hot or cold the air and soil are. Plants like it just right — not too hot, not too cold!</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:24px">🧪</span>
+            <div><strong>Soil pH</strong> — pH tells us if the soil is sour (acidic) or sweet (alkaline). Most vegetables like soil that's right in the middle, like Goldilocks!</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:24px">☀️</span>
+            <div><strong>Light (NDVI)</strong> — the drones take special photos to see how much sunlight the plants are using. Healthy plants look very bright in these photos!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Advisor -->
+      <div class="card" style="border-left:4px solid var(--purple-500)">
+        <div class="card-head"><span class="card-title">🧠 What is the AI Advisor?</span></div>
+        <p style="font-size:14px;line-height:1.8;color:var(--text)">
+          The AI Advisor is like a super-smart helper that lives inside the computer. Every morning it reads all the sensor data (temperature, moisture, pest counts, weather forecast) and gives Raj advice in plain words — like "Zone B3 has a fungal disease, I've sent UAV-2 with fungicide." Raj can also type questions and the AI will answer, just like talking to a very knowledgeable friend! 💬
+        </p>
+        <div style="background:var(--purple-100);border-radius:8px;padding:12px;margin-top:10px;font-size:13px;color:var(--text-2)">
+          💡 <strong>What is AI?</strong> AI stands for "Artificial Intelligence." It's a computer program that has learned from millions of books and farms and can figure out answers to hard questions by itself — kind of like how you learned to read by practising a lot!
+        </div>
+      </div>
+
+      <!-- Field map -->
+      <div class="card" style="border-left:4px solid var(--green-600)">
+        <div class="card-head"><span class="card-title">🗺️ What are the zones?</span></div>
+        <p style="font-size:14px;line-height:1.8;color:var(--text)">
+          Raj's farm is divided into sections called <strong>zones</strong> — like squares on a grid, just like a chessboard! Each zone (A1, B3, D6…) has different crops growing in it. The big coloured map shows which zones are healthy (green 🟢), which are stressed (yellow 🟡), and which have a problem (red 🔴). The drones and robots always know exactly which zone to go to!
+        </p>
+      </div>
+
+      <div style="background:linear-gradient(135deg,var(--green-600),var(--green-400));border-radius:12px;padding:20px 24px;color:#fff;text-align:center">
+        <div style="font-size:32px;margin-bottom:8px">🎉</div>
+        <div style="font-size:17px;font-weight:600;margin-bottom:6px">You now know how a smart farm works!</div>
+        <div style="font-size:13.5px;opacity:.9">Try clicking around the other pages to see the drones, robots, and sensors doing their jobs in real time.</div>
+        <button class="btn" style="margin-top:14px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4)" onclick="nav('dashboard',document.querySelectorAll('.nav-item')[0])">🏡 Go to the farm dashboard</button>
       </div>
     </div>
 
