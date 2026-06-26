@@ -1684,7 +1684,7 @@ async function callAI(userMsg) {
   box.scrollTop = box.scrollHeight;
 
   try {
-    const res = await fetch('https://agronet-backend-l22vtvcrva-uc.a.run.app/api/ai/chat', {
+    const res = await fetch('https://agronet-backend-1086951847811.us-central1.run.app/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: userMsg })
@@ -1846,7 +1846,7 @@ async function approveTask(btn) {
   row.appendChild(pill);
 }
 // ── Live backend connection ──────────────────────────────────
-const BACKEND_WS = 'wss://agronet-backend-l22vtvcrva-uc.a.run.app/ws';
+const BACKEND_WS = 'wss://agronet-backend-1086951847811.us-central1.run.app/ws';
 const ws = new WebSocket(BACKEND_WS);
 
 ws.onopen = () => console.log('AgroNet backend connected');
@@ -1908,7 +1908,7 @@ ws.onmessage = (event) => {
 };
 
 // ── Backend API helpers ───────────────────────────────────────
-const API = 'https://agronet-backend-l22vtvcrva-uc.a.run.app';
+const API = 'https://agronet-backend-1086951847811.us-central1.run.app';
 
 async function apiPost(path, body) {
   try {
