@@ -1608,7 +1608,7 @@ async function getPlannerRecs() {
 
   try {
     const plannerMsg = `Recommend 3 crops for Zone ${zone} during the ${season} season. Priority: ${priority}. ${PLANNER_CONTEXT}`;
-    const res = await fetch('https://agronet-backend-l22vtvcrva-uc.a.run.app/api/ai/chat', {
+    const res = await fetch('https://agronet-backend-1086951847811.us-central1.run.app/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: plannerMsg })
